@@ -112,10 +112,10 @@ button.run-btn:disabled{background:#b4b2a9;cursor:default}
     <div class="tb-title">ERMP v3.0 — Portfolio Command Center</div>
     <div class="tb-sub">May 15, 2026 · 8 positions · VRT active · Next scan running now · Jun 25 rebalance scheduled</div>
   </div>
-  <div class="regime">
-    <div class="rl">Market breadth</div>
-    <div class="rv">43.9%</div>
-    <div class="rs">Amber · Full exposure</div>
+  <div class="regime" style="background:#e6f1fb;border-color:#378add">
+    <div class="rl" style="color:#0c447c">Market breadth</div>
+    <div class="rv" style="color:#185fa5">54.9%</div>
+    <div class="rs" style="color:#0c447c">Neutral · Full exposure</div>
   </div>
 </div>
 
@@ -173,7 +173,7 @@ const HOLD=[
   {rank:4,rc:'r4',t:'MU',n:'Micron',s:'Technology',sp:'pb',w:12,wc:COL.V,sc:85,rev:'+32.6%',beat:'+32.7%',fcf:'5.3%',fo:true,stat:'All clear',ss:'pg',iN:false},
   {rank:5,rc:'r5',t:'GEV',n:'GE Vernova',s:'Industrials',sp:'pp',w:12,wc:COL.V,sc:82,rev:'+24.3%',beat:'+22.0%',fcf:'5.6%',fo:true,stat:'All clear',ss:'pg',iN:false},
   {rank:6,rc:'r6',t:'PWR',n:'Quanta Services',s:'Industrials',sp:'pp',w:11,wc:COL.GR,sc:74,rev:'+14.8%',beat:'+11.2%',fcf:'5.9%',fo:true,stat:'Trim at Jun',ss:'pa',iN:false},
-  {rank:7,rc:'r7',t:'SPOT',n:'Spotify',s:'Comm. Svcs',sp:'pt',w:9,wc:COL.GR,sc:76,rev:'+18.7%',beat:'+19.4%',fcf:'5.2%',fo:true,stat:'Amber entry',ss:'pa',iN:false},
+  {rank:7,rc:'r7',t:'SPOT',n:'Spotify',s:'Comm. Svcs',sp:'pt',w:9,wc:COL.GR,sc:76,rev:'+18.7%',beat:'+19.4%',fcf:'5.2%',fo:true,stat:'Neutral entry',ss:'pb',iN:false},
   {rank:8,rc:'r8',t:'VRT',n:'Vertiv Holdings',s:'Industrials',sp:'pp',w:9,wc:COL.G,sc:96,rev:'+31.4%',beat:'+17.0%',fcf:'5.8%',fo:true,stat:'Just added',ss:'pg',iN:true},
 ];
 
@@ -305,7 +305,7 @@ function buildPortfolio(p){
   });
   html+=`${sh('Conviction weight waterfall')}
   <div class="chart-wrap" style="height:170px"><canvas id="wt-chart"></canvas></div>
-  <div class="warn">Industrials 48% exceeds 40% neutral-regime cap. Jun 25 action: trim PWR 11→7%. Technology 46% also above cap.</div>`;
+  <div class="warn">⚡ Regime upgrade: Breadth has crossed 50% (now 54.9%) — regime is now <strong>Neutral</strong>. Sector caps expand from 40% → 45%. VRT expansion to 12% is now triggered (breadth ≥50% condition met). Industrials at 48% still above 45% Neutral cap — Jun 25 trim of PWR remains mandatory.</div>`;
   p.innerHTML=html;
   new Chart(document.getElementById('wt-chart'),{
     type:'bar',
@@ -556,7 +556,7 @@ function buildAudit(p){
     {pass:true,t:'Conviction weighting fully implemented',b:'PLTR 22%, LRCX 18%, AXON 16%. Top-3 hold 56% of capital vs 30% in equal-weight v2.0. Primary CAGR driver correctly applied.',f:'Pass'},
     {pass:true,t:'GS removed — anti-dilution rule applied',b:'GS score 68 excluded. 9% redistributed to top names. Portfolio composite score improved from 83.0 to 84.6.',f:'Pass — corrected'},
     {pass:true,t:'Bi-weekly scan rule updated to 20pt premium',b:'Old rule (weight <7%) replaced with signal-quality differential rule. Fires 2–4x/year vs 6–9x. VRT replacement correctly executed.',f:'Pass — updated'},
-    {pass:true,t:'VRT entry respects amber breadth cap (9% ≤ 10%)',b:'VRT entered at 9% per amber entry cap rule. Score 96 warrants 12% once breadth clears 50%.',f:'Pass'},
+    {pass:true,t:'VRT entry respects amber breadth cap (9% ≤ 10%)',b:'VRT entered at 9% per amber entry cap rule. Breadth now 54.9% — above 50% threshold. VRT expansion to 12% is now triggered and can execute at Jun 25 rebalance.',f:'Pass — expansion now authorized'},
     {pass:false,t:'Industrials at 48% — above 40% neutral-regime cap',b:'AXON+GEV+PWR+VRT = 48%. Neutral regime cap is 40%. Corrective action: trim PWR 11%→7% at Jun 25 rebalance.',f:'Flag — Jun 25 mandatory action'},
     {pass:false,t:'Technology at 46% — above 40% neutral-regime cap',b:'PLTR+LRCX+MU = 46%. Resolves if breadth >50% (cap expands to 45%) or MU trimmed at Jun 25.',f:'Flag — breadth-dependent resolution'},
     {pass:false,t:'PLTR FCF yield waiver active',b:'FCF 0.7% below ≥5% threshold. Score 94, DoD program of record. Formal waiver active, Jun 25 review scheduled.',f:'Partial — documented, 2-quarter review'},
@@ -599,7 +599,7 @@ function buildRules(p){
     {n:'4',bg:'#e1f5ee',col:'#0f6e56',t:'Portfolio construction',rows:[
       ['Position count','Flex 6–10 · Open only when score ≥65/100 · No forced dilution into marginal ideas'],
       ['Conviction weights','#1: 20–22% · #2–3: 14–18% · #4–5: 10–13% · #6–8: 8–11% · Sum to 100%'],
-      ['Sector cap (dynamic)','Breadth >65%: 50% · 50–65%: 45% · 40–50%: 40% (current) · <40%: 35%'],
+      ['Sector cap (dynamic)','Breadth >65%: 50% · 50–65%: 45% (current) · 40–50%: 40% · <40%: 35%'],
       ['Position trim','Appreciation past 25% → trim to 20% within 5 trading days · Prevents single-name drift dominance'],
       ['No averaging down','Never add to a declining position · Hold or exit only · Adding to losers explicitly prohibited'],
     ]},
@@ -618,8 +618,8 @@ function buildRules(p){
     ]},
     {n:'7',bg:'#e6f1fb',col:'#0c447c',t:'Market regime overlay (5 levels)',rows:[
       ['Level 1 — Bull (>65%)','Full 100% exposure · Sector caps expand to 50% · New entries at full conviction weight'],
-      ['Level 2 — Neutral (50–65%)','Full 100% exposure · Sector caps 45% · Normal conviction weights apply'],
-      ['Level 3 — Amber (40–50%)','100% exposure but restricted · New entries capped at 10% · Sector caps 40% · CURRENT REGIME'],
+      ['Level 2 — Neutral (50–65%)','Full 100% exposure · Sector caps 45% · Normal conviction weights apply · CURRENT REGIME (54.9%)'],
+      ['Level 3 — Amber (40–50%)','100% exposure but restricted · New entries capped at 10% · Sector caps 40%'],
       ['Level 4 — Defensive (<40%)','Reduce to 35–45% exposure · T-bills on remainder · Sector caps 35%'],
       ['Level 5 — Crisis (<25%)','Reduce to 30% exposure · T-bills remainder · Hold only top-3 scored positions'],
     ]},
@@ -787,8 +787,8 @@ function buildRisk(p){
   ];
   let html=`
   <div class="verdict"><div class="vt">Risk committee summary — May 14, 2026</div>
-  <div class="vb">8 positions, fully deployed, breadth 43.9% amber. No sell triggers firing. Two sector flags (Industrials 48%, Tech 46%) scheduled for Jun 25. Primary tail risk: rate re-acceleration driving 2022-analog revision lag cycle.</div></div>
-  <div class="g4">${mc('Overall risk','Moderate','No triggers firing','g')}${mc('Sector flags','2 active','Industrials · Tech','a')}${mc('Position flags','2 active','AXON price · PLTR FCF','a')}${mc('Breadth watch','43.9%','3.9pts above defensive','b')}</div>
+  <div class="vb">8 positions, fully deployed, breadth 54.9% — regime upgraded to Neutral (was Amber 43.9%). Sector caps now 45%. VRT expansion to 12% triggered. No sell triggers firing. Industrials 48% still above 45% Neutral cap — Jun 25 trim mandatory. Primary tail risk: rate re-acceleration.</div></div>
+  <div class="g4">${mc('Overall risk','Moderate','No triggers firing','g')}${mc('Sector flags','1 active','Industrials 48% vs 45% cap','a')}${mc('Position flags','2 active','AXON price · PLTR FCF','a')}${mc('Breadth','54.9%','Neutral regime — upgraded','b')}</div>
   ${sh('Position risk register')}
   <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
     <div class="risk-row rh"><div>Position</div><div>Primary risk</div><div>Severity</div><div>Trigger watch</div></div>`;
@@ -798,8 +798,8 @@ function buildRisk(p){
   html+=`</div>
   ${sh('Breadth scenario response table')}
   <table><thead><tr><th>Breadth level</th><th>Regime</th><th>Required action</th><th>Key impact</th></tr></thead><tbody>
-    <tr><td>&gt;50% (recovery)</td><td>${pill('Improving','pg')}</td><td>Expand VRT to 12% · Sector caps to 45%</td><td>Industrials flag narrows; Tech cap clears</td></tr>
-    <tr><td>40–43.9% (current)</td><td>${pill('Amber','pa')}</td><td>Monitor weekly · new entries ≤10%</td><td>Hold full exposure</td></tr>
+    <tr><td>&gt;50% — 54.9% (current)</td><td>${pill('Neutral','pb')}</td><td>Expand VRT to 12% · Sector caps to 45% · Full conviction weights</td><td>Industrials flag narrows to 3pts; Tech cap clears</td></tr>
+    <tr><td>40–50%</td><td>${pill('Amber','pa')}</td><td>Monitor weekly · new entries ≤10%</td><td>Previous regime as of May 14</td></tr>
     <tr><td>35–40%</td><td>${pill('Defensive trigger','pr')}</td><td>Reduce to 35–45% exposure</td><td>PWR and SPOT first exits</td></tr>
     <tr><td>&lt;25%</td><td>${pill('Crisis','pr')}</td><td>30% exposure · T-bills remainder</td><td>Hold PLTR, LRCX, VRT only (top scores)</td></tr>
   </tbody></table>
