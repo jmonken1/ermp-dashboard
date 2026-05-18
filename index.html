@@ -110,7 +110,7 @@ button.run-btn:disabled{background:#b4b2a9;cursor:default}
 <div class="top-bar">
   <div>
     <div class="tb-title">ERMP v3.0 — Portfolio Command Center</div>
-    <div class="tb-sub">May 17, 2026 · 8 positions · Dashboard live on GitHub Pages · VRT active · Next scan running now · Jun 25 rebalance scheduled</div>
+    <div class="tb-sub">May 14, 2026 · 8 positions · VRT active · Next scan running now · Jun 25 rebalance scheduled</div>
   </div>
   <div class="regime">
     <div class="rl">Market breadth</div>
@@ -900,9 +900,9 @@ function buildGrowth1M(p){
 function buildCurrentPerf(p){
   // Portfolio & SPX headline figures
   const portYTD=7.8, portT12=21.4;
-  const spxYTD=-4.6, spxT12=6.8;
-  const ermpSharpeYTD=0.82, spxSharpeYTD=-0.41;
-  const ermpSharpeT12=1.28, spxSharpeT12=0.41;
+  const spxYTD=10.0, spxT12=30.6;
+  const ermpSharpeYTD=0.82, spxSharpeYTD=0.94;
+  const ermpSharpeT12=1.28, spxSharpeT12=1.41;
 
   // Position-level model estimates (weight × return = contribution)
   // YTD = Jan 1 – May 14, 2026 | T12 = May 2025 – May 2026
@@ -936,18 +936,18 @@ function buildCurrentPerf(p){
   <div class="g4">
     ${mc('ERMP YTD',pct(portYTD),'Jan 1 – May 14, 2026','g')}
     ${mc('ERMP T12',pct(portT12),'May 2025 – May 2026','g')}
-    ${mc('SPX YTD',pct(spxYTD),'Jan 1 – May 14, 2026','r')}
+    ${mc('SPX YTD',pct(spxYTD),'Jan 1 – May 14, 2026','')}
     ${mc('SPX T12',pct(spxT12),'May 2025 – May 2026','')}
   </div>
   <div class="g4">
-    ${mc('ERMP Sharpe YTD',ermpSharpeYTD.toFixed(2),'annualized','g')}
-    ${mc('ERMP Sharpe T12',ermpSharpeT12.toFixed(2),'annualized','g')}
-    ${mc('SPX Sharpe YTD',spxSharpeYTD.toFixed(2),'annualized','r')}
+    ${mc('ERMP Sharpe YTD',ermpSharpeYTD.toFixed(2),'annualized','')}
+    ${mc('ERMP Sharpe T12',ermpSharpeT12.toFixed(2),'annualized','')}
+    ${mc('SPX Sharpe YTD',spxSharpeYTD.toFixed(2),'annualized','')}
     ${mc('SPX Sharpe T12',spxSharpeT12.toFixed(2),'annualized','')}
   </div>
   <div class="g4">
-    ${mc('YTD alpha vs SPX',pct(portYTD-spxYTD),'ERMP outperformance','g')}
-    ${mc('T12 alpha vs SPX',pct(portT12-spxT12),'ERMP outperformance','g')}
+    ${mc('YTD alpha vs SPX',pct(portYTD-spxYTD),'ERMP vs SPX YTD',portYTD>=spxYTD?'g':'r')}
+    ${mc('T12 alpha vs SPX',pct(portT12-spxT12),'ERMP vs SPX T12',portT12>=spxT12?'g':'r')}
     ${mc('Backtest Sharpe','1.59','Dec 2016 – Mar 2026 full','b')}
     ${mc('Backtest CAGR','32.0%','vs 14.1% SPX full period','b')}
   </div>
@@ -1059,5 +1059,51 @@ function buildCurrentPerf(p){
 buildNav();
 renderTab('portfolio');
 </script>
+<!-- ── UPDATE INSTRUCTIONS BUTTON ── -->
+<div style="position:fixed;bottom:20px;right:20px;z-index:999">
+  <button onclick="document.getElementById('update-modal').style.display='flex'"
+    style="background:#1d9e75;color:#fff;border:none;border-radius:50px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,0.2);display:flex;align-items:center;gap:6px">
+    ↑ How to update dashboard
+  </button>
+</div>
+
+<!-- ── UPDATE MODAL ── -->
+<div id="update-modal" onclick="if(event.target===this)this.style.display='none'"
+  style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:14px;padding:24px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:15px;font-weight:600">How to update this dashboard</div>
+      <button onclick="document.getElementById('update-modal').style.display='none'"
+        style="background:none;border:none;font-size:18px;cursor:pointer;color:#666;padding:0 4px">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:26px;height:26px;border-radius:50%;background:#e6f1fb;color:#0c447c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div>
+        <div style="font-size:13px;line-height:1.5"><strong>Get the new file from Claude</strong><br><span style="color:#666">Claude will give you a download named <code>index.html</code> after any portfolio update</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:26px;height:26px;border-radius:50%;background:#e6f1fb;color:#0c447c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</div>
+        <div style="font-size:13px;line-height:1.5"><strong>Go to your GitHub repo</strong><br><span style="color:#666"><a href="https://github.com/jmonken1/ermp-dashboard" target="_blank" style="color:#185fa5">github.com/jmonken1/ermp-dashboard</a></span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:26px;height:26px;border-radius:50%;background:#e6f1fb;color:#0c447c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</div>
+        <div style="font-size:13px;line-height:1.5"><strong>Click + → Upload files</strong><br><span style="color:#666">Drag <code>index.html</code> from your Downloads folder onto the upload area</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:26px;height:26px;border-radius:50%;background:#e6f1fb;color:#0c447c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</div>
+        <div style="font-size:13px;line-height:1.5"><strong>Click "Commit changes"</strong><br><span style="color:#666">Wait 30–60 seconds, then refresh. Done ✅</span></div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:10px 12px;background:#f5f5f3;border-radius:8px;font-size:11px;color:#666;line-height:1.5">
+      📌 <strong>Your live URL:</strong><br>
+      <a href="https://jmonken1.github.io/ermp-dashboard" target="_blank" style="color:#185fa5">jmonken1.github.io/ermp-dashboard</a>
+    </div>
+    <button onclick="document.getElementById('update-modal').style.display='none'"
+      style="margin-top:14px;width:100%;padding:9px;background:#1d9e75;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
+      Got it
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
