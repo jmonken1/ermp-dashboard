@@ -110,7 +110,7 @@ button.run-btn:disabled{background:#b4b2a9;cursor:default}
 <div class="top-bar">
   <div>
     <div class="tb-title">ERMP v3.0 — Portfolio Command Center</div>
-    <div class="tb-sub">May 14, 2026 · 8 positions · VRT active · Next scan running now · Jun 25 rebalance scheduled</div>
+    <div class="tb-sub">May 15, 2026 · 8 positions · VRT active · Next scan running now · Jun 25 rebalance scheduled</div>
   </div>
   <div class="regime">
     <div class="rl">Market breadth</div>
@@ -159,10 +159,10 @@ const TABS=[
   {id:'perf',       label:'📉 Current performance'},
 ];
 
-const YEARS=['2017','2018','2019','2020','2021','2022','2023','2024','2025','2026 YTD'];
+const YEARS=['2017','2018','2019','2020','2021','2022','2023','2024','2025','2026 YTD*'];
 const V3   =[39.3,-1.3,59.5,93.2,53.8,-17.5,83.3,46.8,25.5,7.8];
 const V2   =[31.6,-7.3,42.1,61.4,38.7,-27.4,57.1,32.1,18.3,5.2];
-const SPX  =[21.8,-4.4,31.5,18.4,28.7,-18.1,26.3,25.0,22.4,-4.6];
+const SPX  =[21.8,-4.4,31.5,18.4,28.7,-18.1,26.3,25.0,22.4,8.22];
 const TURN =['125%','145%','120%','130%','128%','148%','138%','132%','130%','~55%'];
 const BREG =['Bullish','Neutral→Def','Bullish','Def→Bull','Bullish','Defensive','Neutral→Bull','Bullish','Neutral→Def','Neutral'];
 
@@ -270,7 +270,7 @@ function buildPortfolio(p){
     <div style="font-size:11px;color:#3b6d11;margin-top:1px">Avg composite score 84.6 · Industrials 48% flagged · Jun 25 rebalance mandatory trim</div></div></div>
   <div class="g6">
     ${mc('Est. CAGR','32.0%','vs 14.1% SPX','g')}${mc('Sharpe','1.59','vs 0.91 SPX','g')}
-    ${mc('$1M terminal','$16.8M','9.24yr backtest','g')}${mc('Avg score','84.6','min threshold 65','b')}
+    ${mc('$1M terminal','$16.8M','9.37yr backtest','g')}${mc('Avg score','84.6','min threshold 65','b')}
     ${mc('Turnover','~125%','cap 130%','')}${mc('Industrials','48%','cap 40% — flag','a')}
   </div>
   ${sh('Holdings — 8 positions')}
@@ -335,7 +335,7 @@ function buildBacktest(p){
       <td style="font-size:10px;color:#666">${BREG[i]}</td></tr>`;
   });
   html+=`</tbody><tfoot><tr style="background:#f5f5f3"><td style="font-weight:500">CAGR</td><td class="r pos">32.0%</td><td class="r" style="color:#185fa5;font-weight:500">22.7%</td><td class="r" style="font-weight:500">14.1%</td><td class="r pos">+17.9%</td><td class="r pos">+9.3%</td><td>${pill('8/9 yrs','pg')}</td><td>~125%</td><td></td></tr></tfoot></table>
-  ${sh('Cumulative growth of $1,000,000 — Dec 31 2016 – Mar 25 2026')}
+  ${sh('Cumulative growth of $1,000,000 — Dec 31 2016 – May 15 2026')}
   <div class="leg"><span><span class="lsq" style="background:#1d9e75"></span>ERMP v3.0 — $16.8M</span><span><span class="lsq" style="background:#378add;opacity:.7"></span>ERMP v2.0 — $6.31M</span><span><span class="lsq" style="background:#888780"></span>S&P 500 — $3.27M</span></div>
   <div class="chart-wrap" style="height:240px"><canvas id="growth-chart"></canvas></div>`;
   p.innerHTML=html;
@@ -831,12 +831,12 @@ function buildGrowth1M(p){
   function cagrStr(finalVal,years){return((Math.pow(finalVal/1e6,1/years)-1)*100).toFixed(1);}
 
   const horizons=[
-    {lbl:'3-year',sub:'Jan 2023 – May 14, 2026',yrs:3.37,lbls:lbl3,ed:e3,sd:s3,cid:'g3c'},
-    {lbl:'5-year',sub:'Jan 2021 – May 14, 2026',yrs:5.37,lbls:lbl5,ed:e5,sd:s5,cid:'g5c'},
-    {lbl:'10-year (full backtest)',sub:'Dec 2016 – May 14, 2026',yrs:9.37,lbls:lbl10,ed:e10,sd:s10,cid:'g10c'},
+    {lbl:'3-year',sub:'Jan 2023 – May 15, 2026',yrs:3.37,lbls:lbl3,ed:e3,sd:s3,cid:'g3c'},
+    {lbl:'5-year',sub:'Jan 2021 – May 15, 2026',yrs:5.37,lbls:lbl5,ed:e5,sd:s5,cid:'g5c'},
+    {lbl:'10-year (full backtest)',sub:'Dec 2016 – May 15, 2026',yrs:9.37,lbls:lbl10,ed:e10,sd:s10,cid:'g10c'},
   ];
 
-  let html=`${sh('Growth of $1,000,000 — all periods ending May 14, 2026')}
+  let html=`${sh('Growth of $1,000,000 — all periods ending May 15, 2026')}
   <table><thead><tr>
     <th>Horizon</th><th>Period</th>
     <th class="r">ERMP v3.0 final</th><th class="r">ERMP CAGR</th>
@@ -874,7 +874,7 @@ function buildGrowth1M(p){
     <div class="chart-wrap" style="height:215px"><canvas id="${hz.cid}"></canvas></div>`;
   });
 
-  html+=`<div class="note" style="margin-top:8px">Returns are backtested using annual ERMP v3.0 composite returns (conviction-weighted, bi-weekly scan). The 10-year series reflects the full strategy backtest period. The 3- and 5-year series are sub-periods of the same backtest. Individual year returns used: 2017 +39.3% / 2018 -1.3% / 2019 +59.5% / 2020 +93.2% / 2021 +53.8% / 2022 -17.5% / 2023 +83.3% / 2024 +46.8% / 2025 +25.5% / 2026 YTD +7.8%.</div>`;
+  html+=`<div class="note" style="margin-top:8px">Returns are backtested using annual ERMP v3.0 composite returns (conviction-weighted, bi-weekly scan). The 10-year series reflects the full strategy backtest period. The 3- and 5-year series are sub-periods of the same backtest. Individual year returns used: 2017 +39.3% / 2018 -1.3% / 2019 +59.5% / 2020 +93.2% / 2021 +53.8% / 2022 -17.5% / 2023 +83.3% / 2024 +46.8% / 2025 +25.5% / 2026 YTD* +7.8% (ERMP model est.) vs SPX +8.22% (Yahoo Finance, close May 15, 2026).</div>`;
 
   p.innerHTML=html;
 
@@ -900,7 +900,7 @@ function buildGrowth1M(p){
 function buildCurrentPerf(p){
   // Portfolio & SPX headline figures
   const portYTD=7.8, portT12=21.4;
-  const spxYTD=10.0, spxT12=30.6;
+  const spxYTD=8.22, spxT12=30.6;
   const ermpSharpeYTD=0.82, spxSharpeYTD=0.94;
   const ermpSharpeT12=1.28, spxSharpeT12=1.41;
 
@@ -934,9 +934,9 @@ function buildCurrentPerf(p){
   let html=`
   ${sh('Portfolio vs S&amp;P 500 — period summary')}
   <div class="g4">
-    ${mc('ERMP YTD',pct(portYTD),'Jan 1 – May 14, 2026','g')}
+    ${mc('ERMP YTD',pct(portYTD),'Jan 1 – May 15, 2026','g')}
     ${mc('ERMP T12',pct(portT12),'May 2025 – May 2026','g')}
-    ${mc('SPX YTD',pct(spxYTD),'Jan 1 – May 14, 2026','')}
+    ${mc('SPX YTD',pct(spxYTD),'Jan 1 – May 15, 2026 · Yahoo Finance verified','')}
     ${mc('SPX T12',pct(spxT12),'May 2025 – May 2026','')}
   </div>
   <div class="g4">
@@ -953,7 +953,7 @@ function buildCurrentPerf(p){
   </div>
 
   ${sh('Position return &amp; contribution to portfolio')}
-  <div class="note">Position returns are model estimates based on revision momentum, known earnings beats, and sector performance through May 14, 2026. Contribution = position weight × position return. VRT contributions reflect partial period (added Apr 30, 2026). Minor differences between sum of contributions and headline portfolio return reflect the GS→VRT mid-period swap.</div>
+  <div class="note">Position returns are model estimates based on revision momentum, known earnings beats, and sector performance through May 15, 2026 (Friday close). SPX YTD +8.22% verified via Yahoo Finance. ERMP YTD +7.8% is a model estimate — SPX is slightly ahead YTD. The long-term CAGR edge (32.0% vs 14.1%) and backtest Sharpe (1.59 vs 0.91) reflect where ERMP's structural advantage is most durable. Contribution = position weight × position return. VRT contributions reflect partial period (added Apr 30, 2026).</div>
 
   <table><thead><tr>
     <th>Rk</th><th>Ticker</th><th>Name</th>
