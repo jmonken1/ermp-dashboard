@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ERMP v3.0 — Portfolio Command Center</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f9f9f8;color:#1a1a1a;font-size:13px}
+.page{max-width:1100px;margin:0 auto;padding:16px}
+.top-bar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #e0e0e0}
+.tb-title{font-size:17px;font-weight:500}
+.tb-sub{font-size:11px;color:#666;margin-top:3px}
+.regime{background:#faeeda;border:1px solid #ba7517;border-radius:8px;padding:7px 12px;text-align:center;min-width:110px}
+.rl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#854f0b}
+.rv{font-size:17px;font-weight:500;color:#633806}
+.rs{font-size:10px;color:#854f0b}
+.nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px}
+.nb{padding:5px 11px;font-size:11px;border:1px solid #ccc;border-radius:7px;background:#fff;color:#555;cursor:pointer;white-space:nowrap;transition:all .12s}
+.nb:hover{background:#f0f0f0;color:#1a1a1a}
+.nb.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.nb.scan-tab{border-color:#1d9e75;color:#1d9e75}
+.nb.scan-tab.on{background:#1d9e75;color:#fff;border-color:#1d9e75}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.sh{font-size:10px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0}
+.g6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.mc{background:#f5f5f3;border-radius:8px;padding:9px 11px}
+.mc .ml{font-size:10px;color:#666}
+.mc .mn{font-size:18px;font-weight:500;margin-top:2px}
+.mc .ms{font-size:10px;color:#888;margin-top:1px}
+.mc.g{background:#eaf3de}.mc.g .mn{color:#27500a}
+.mc.a{background:#faeeda}.mc.a .mn{color:#633806}
+.mc.b{background:#e6f1fb}.mc.b .mn{color:#0c447c}
+.mc.r{background:#fcebeb}.mc.r .mn{color:#791f1f}
+.pill{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:500;white-space:nowrap}
+.pg{background:#eaf3de;color:#27500a}.pb{background:#e6f1fb;color:#0c447c}
+.pa{background:#faeeda;color:#633806}.pr{background:#fcebeb;color:#791f1f}
+.pp{background:#eeedfe;color:#3c3489}.pt{background:#e1f5ee;color:#0f6e56}
+.pos{color:#27500a;font-weight:500}.neg{color:#791f1f;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:6px 8px;font-size:10px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e0e0e0;white-space:nowrap}
+th.r{text-align:right}
+td{padding:6px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+td.r{text-align:right}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f9f9f8}
+tr.nr td{background:#eaf3de}
+.rank-dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+.r1{background:#eaf3de;color:#27500a}.r2,.r3{background:#e6f1fb;color:#0c447c}
+.r4,.r5{background:#eeedfe;color:#3c3489}.r6,.r7,.r8{background:#f0f0f0;color:#555}
+.new-b{background:#1d9e75;color:#fff;font-size:9px;font-weight:600;padding:1px 4px;border-radius:3px;margin-left:3px}
+.wbar{display:inline-block;width:48px;height:4px;background:#e0e0e0;border-radius:2px;overflow:hidden;vertical-align:middle;margin-right:3px}
+.wbar-f{height:100%;border-radius:2px}
+.sbar{display:inline-block;width:36px;height:4px;background:#e0e0e0;border-radius:2px;overflow:hidden;vertical-align:middle;margin-right:3px}
+.sbar-f{height:100%;border-radius:2px}
+.chart-wrap{position:relative;width:100%}
+.leg{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.leg span{display:flex;align-items:center;gap:4px;font-size:11px;color:#666}
+.lsq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.exec-banner{background:#eaf3de;border:1px solid #3b6d11;border-radius:10px;padding:10px 13px;margin-bottom:12px;display:flex;align-items:flex-start;gap:9px}
+.eb-icon{width:26px;height:26px;border-radius:50%;background:#1d9e75;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0}
+.verdict{background:#eaf3de;border:1px solid #3b6d11;border-radius:10px;padding:10px 13px;margin-bottom:10px}
+.vt{font-size:12px;font-weight:600;color:#27500a;margin-bottom:3px}
+.vb{font-size:12px;color:#3b6d11;line-height:1.5}
+.note{font-size:11px;color:#555;padding:8px 10px;background:#eff4ff;border-left:3px solid #185fa5;border-radius:0 7px 7px 0;margin-top:8px}
+.warn{font-size:11px;color:#555;padding:8px 10px;background:#faeeda;border-left:3px solid #ba7517;border-radius:0 7px 7px 0;margin-top:7px}
+.rg{border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:7px}
+.rgh{display:flex;align-items:center;gap:7px;padding:7px 11px;background:#f5f5f3;border-bottom:1px solid #e0e0e0}
+.rgn{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.rgt{font-size:12px;font-weight:500}
+.rr{display:grid;grid-template-columns:160px 1fr;border-bottom:1px solid #f0f0f0}
+.rr:last-child{border-bottom:none}
+.rrk{padding:6px 10px;font-size:11px;font-weight:500;color:#666;background:#f9f9f8;border-right:1px solid #f0f0f0}
+.rrv{padding:6px 10px;font-size:11px;line-height:1.45}
+.scan-prog-wrap{height:5px;background:#e0e0e0;border-radius:3px;overflow:hidden;margin:5px 0 10px}
+.scan-prog{height:100%;border-radius:3px;background:#1d9e75;transition:width .35s ease}
+.cand-card{border:1px solid #e0e0e0;border-radius:10px;background:#fff;margin-bottom:7px;overflow:hidden}
+.cand-card.top{border:2px solid #1d9e75}
+.cand-card.sec{border:2px solid #378add}
+.cand-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:9px 12px;cursor:pointer}
+.cand-header:hover{background:#f9f9f8}
+.cand-detail{display:none;padding:9px 12px;border-top:1px solid #f0f0f0;background:#f9f9f8}
+.cand-detail.open{display:block}
+.sig-item{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#555;margin:2px 4px 2px 0}
+.sig-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dg{background:#3b6d11}.da{background:#ba7517}
+.scan-step{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid #f0f0f0}
+.scan-step:last-child{border-bottom:none}
+.snum{width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;margin-top:1px}
+.sb{background:#e6f1fb;color:#0c447c}.sg{background:#eaf3de;color:#27500a}.sa{background:#faeeda;color:#633806}
+.decision-box{border-radius:9px;padding:10px 12px;margin-bottom:7px;border:1px solid #e0e0e0}
+.stress-card{border:1px solid #e0e0e0;border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff}
+.stress-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.risk-row{display:grid;grid-template-columns:120px 1fr 90px 100px;gap:0;border-bottom:1px solid #f0f0f0;align-items:center}
+.risk-row>div{padding:6px 8px;font-size:12px}
+.risk-row.rh>div{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#666;background:#f5f5f3}
+button.run-btn{padding:6px 14px;font-size:12px;background:#1d9e75;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:500}
+button.run-btn:hover{background:#0f6e56}
+button.run-btn:disabled{background:#b4b2a9;cursor:default}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="top-bar">
+  <div>
+    <div class="tb-title">ERMP v3.0 — Portfolio Command Center</div>
+    <div class="tb-sub">May 14, 2026 · 8 positions · VRT active · Next scan running now · Jun 25 rebalance scheduled</div>
+  </div>
+  <div class="regime">
+    <div class="rl">Market breadth</div>
+    <div class="rv">43.9%</div>
+    <div class="rs">Amber · Full exposure</div>
+  </div>
+</div>
+
+<div class="nav" id="nav"></div>
+
+<!-- PANES -->
+<div id="pane-portfolio" class="tab-pane active"></div>
+<div id="pane-backtest" class="tab-pane"></div>
+<div id="pane-scan" class="tab-pane"></div>
+<div id="pane-scan-analysis" class="tab-pane"></div>
+<div id="pane-replacements" class="tab-pane"></div>
+<div id="pane-audit" class="tab-pane"></div>
+<div id="pane-rules" class="tab-pane"></div>
+<div id="pane-stress" class="tab-pane"></div>
+<div id="pane-monte" class="tab-pane"></div>
+<div id="pane-rebalance" class="tab-pane"></div>
+<div id="pane-risk" class="tab-pane"></div>
+<div id="pane-growth1m" class="tab-pane"></div>
+<div id="pane-perf" class="tab-pane"></div>
+
+</div><!-- .page -->
+
+<script>
+/* ─── CONSTANTS ─── */
+const COL={G:'#1d9e75',B:'#378add',V:'#7f77dd',GR:'#888780',AM:'#ef9f27',R:'#e24b4a'};
+const GRID='rgba(0,0,0,0.06)',TICK='#888780';
+
+const TABS=[
+  {id:'portfolio',  label:'📊 Live portfolio'},
+  {id:'backtest',   label:'📈 Backtest'},
+  {id:'scan',       label:'🔍 Run bi-weekly scan', cls:'scan-tab'},
+  {id:'scan-analysis', label:'📡 Scan analysis'},
+  {id:'replacements',  label:'🔄 Replacements'},
+  {id:'audit',      label:'✅ Audit'},
+  {id:'rules',      label:'📋 Rules'},
+  {id:'stress',     label:'⚡ Stress test'},
+  {id:'monte',      label:'🎲 Monte Carlo'},
+  {id:'rebalance',  label:'📝 Q2 rebalance'},
+  {id:'risk',       label:'🛡️ Risk summary'},
+  {id:'growth1m',   label:'💰 Growth of $1MM'},
+  {id:'perf',       label:'📉 Current performance'},
+];
+
+const YEARS=['2017','2018','2019','2020','2021','2022','2023','2024','2025','2026 YTD'];
+const V3   =[39.3,-1.3,59.5,93.2,53.8,-17.5,83.3,46.8,25.5,7.8];
+const V2   =[31.6,-7.3,42.1,61.4,38.7,-27.4,57.1,32.1,18.3,5.2];
+const SPX  =[21.8,-4.4,31.5,18.4,28.7,-18.1,26.3,25.0,22.4,-4.6];
+const TURN =['125%','145%','120%','130%','128%','148%','138%','132%','130%','~55%'];
+const BREG =['Bullish','Neutral→Def','Bullish','Def→Bull','Bullish','Defensive','Neutral→Bull','Bullish','Neutral→Def','Neutral'];
+
+const HOLD=[
+  {rank:1,rc:'r1',t:'PLTR',n:'Palantir',s:'Technology',sp:'pb',w:22,wc:COL.G,sc:94,rev:'+33.1%',beat:'+8.6%',fcf:'0.7%',fo:false,stat:'FCF waiver',ss:'pa',iN:false},
+  {rank:2,rc:'r2',t:'LRCX',n:'Lam Research',s:'Technology',sp:'pb',w:18,wc:COL.B,sc:91,rev:'+27.1%',beat:'+4.1%',fcf:'5.4%',fo:true,stat:'All clear',ss:'pg',iN:false},
+  {rank:3,rc:'r3',t:'AXON',n:'Axon Enterprise',s:'Industrials',sp:'pp',w:16,wc:COL.B,sc:87,rev:'+28.4%',beat:'+34.5%',fcf:'5.1%',fo:true,stat:'Price watch',ss:'pa',iN:false},
+  {rank:4,rc:'r4',t:'MU',n:'Micron',s:'Technology',sp:'pb',w:12,wc:COL.V,sc:85,rev:'+32.6%',beat:'+32.7%',fcf:'5.3%',fo:true,stat:'All clear',ss:'pg',iN:false},
+  {rank:5,rc:'r5',t:'GEV',n:'GE Vernova',s:'Industrials',sp:'pp',w:12,wc:COL.V,sc:82,rev:'+24.3%',beat:'+22.0%',fcf:'5.6%',fo:true,stat:'All clear',ss:'pg',iN:false},
+  {rank:6,rc:'r6',t:'PWR',n:'Quanta Services',s:'Industrials',sp:'pp',w:11,wc:COL.GR,sc:74,rev:'+14.8%',beat:'+11.2%',fcf:'5.9%',fo:true,stat:'Trim at Jun',ss:'pa',iN:false},
+  {rank:7,rc:'r7',t:'SPOT',n:'Spotify',s:'Comm. Svcs',sp:'pt',w:9,wc:COL.GR,sc:76,rev:'+18.7%',beat:'+19.4%',fcf:'5.2%',fo:true,stat:'Amber entry',ss:'pa',iN:false},
+  {rank:8,rc:'r8',t:'VRT',n:'Vertiv Holdings',s:'Industrials',sp:'pp',w:9,wc:COL.G,sc:96,rev:'+31.4%',beat:'+17.0%',fcf:'5.8%',fo:true,stat:'Just added',ss:'pg',iN:true},
+];
+
+const SECTORS=[
+  {n:'Industrials',w:48,cap:40,over:true,col:'#534ab7',names:'AXON 16% · GEV 12% · PWR 11% · VRT 9%'},
+  {n:'Technology', w:46,cap:40,over:true,col:'#185fa5',names:'PLTR 22% · LRCX 18% · MU 12%'},
+  {n:'Comm. Svcs',  w:9, cap:40,over:false,col:'#0f6e56',names:'SPOT 9%'},
+];
+
+const SCAN_CANDS=[
+  {t:'NVDA',n:'NVIDIA Corp',sc:95,pr:'+21pts',q:true,cls:'top',
+   rev:'+19.2%',beat:'+14.7%',si:'0.5%',mc:'~$3.1T',fcf:'4.8%',fo:false,
+   rp:37,bp:19,ep:19,sp2:1,cp:5,
+   sigs:[true,true,true,true,true,true,false],
+   thesis:'Q1 FY2027 results (May 20): revenue $78.3B beat, EPS $1.77+. Blackwell demand surge. 60-day revision +19.2%. CEO projecting $1T in AI chip sales 2026–2027. Score 95 clears the 94-point trigger (+21pts over PWR). FCF 4.8% requires waiver (same process as PLTR). Mega-cap -5pt discount applied.',
+   flag:'FCF flag (4.8%) — waiver required · Score 95 clears 94pt trigger by 1pt'},
+  {t:'BKNG',n:'Booking Holdings',sc:91,pr:'+17pts',q:false,cls:'sec',
+   rev:'+16.9%',beat:'+5.6%',si:'2.8%',mc:'~$130B',fcf:'~6.2%',fo:true,
+   rp:33,bp:17,ep:15,sp2:4,cp:5,
+   sigs:[true,true,true,true,true,true,true],
+   thesis:'Q1 2026: adj EPS $1.14 vs $1.08 (+5.6%). Revenue $5.53B +16% YoY. EBITDA +19%. FCF $3.1B. All 7 signals pass. Score 91 is 3pts below the 94-point trigger threshold. Premium +17pts vs PWR, 3pts short of required 20. Nearest qualifying fallback if NVDA waiver denied.',
+   flag:'Score 91 — 3pts below threshold · All 7 signals pass · Watch list priority'},
+  {t:'AVGO',n:'Broadcom Inc.',sc:90,pr:'+16pts',q:false,cls:'',
+   rev:'+28.6%',beat:'+1.5%',si:'0.8%',mc:'~$1.5T',fcf:'5.3%',fo:true,
+   rp:38,bp:19,ep:16,sp2:2,cp:5,
+   sigs:[true,true,true,true,true,true,true],
+   thesis:'Score 90, all signals pass. Below 94pt threshold. Mega-cap discount -5pts limits score. Tech sector already at 46% — AVGO would push it further. Premium +16pts, short of +20 required.',
+   flag:'Score 90 — below threshold · Tech cap constraint'},
+  {t:'NOW',n:'ServiceNow',sc:87,pr:'+13pts',q:false,cls:'',
+   rev:'+24.1%',beat:'+21.3%',si:'1.2%',mc:'~$230B',fcf:'5.1%',fo:true,
+   rp:36,bp:17,ep:20,sp2:4,cp:5,
+   sigs:[true,true,true,false,true,true,true],
+   thesis:'Score 87. Largest earnings beat in cohort (+21.3%). Price confirmation recovering post-earnings selloff. Score premium +13pts, 7pts below threshold. Could qualify at May 28 scan if price flag clears.',
+   flag:'Score 87 — 7pts below threshold · Price flag recovering'},
+];
+
+/* ─── NAV BUILD ─── */
+function buildNav(){
+  const nav=document.getElementById('nav');
+  TABS.forEach(tab=>{
+    const btn=document.createElement('button');
+    btn.className='nb'+(tab.cls?' '+tab.cls:'')+(tab.id==='portfolio'?' on':'');
+    btn.textContent=tab.label;
+    btn.onclick=()=>switchTab(tab.id);
+    nav.appendChild(btn);
+  });
+}
+
+function switchTab(id){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pane-'+id).classList.add('active');
+  const idx=TABS.findIndex(t=>t.id===id);
+  document.querySelectorAll('.nb')[idx].classList.add('on');
+  renderTab(id);
+}
+
+const rendered={};
+function renderTab(id){
+  if(rendered[id]) return;
+  rendered[id]=true;
+  const pane=document.getElementById('pane-'+id);
+  switch(id){
+    case 'portfolio':   buildPortfolio(pane); break;
+    case 'backtest':    buildBacktest(pane); break;
+    case 'scan':        buildScan(pane); break;
+    case 'scan-analysis': buildScanAnalysis(pane); break;
+    case 'replacements':  buildReplacements(pane); break;
+    case 'audit':       buildAudit(pane); break;
+    case 'rules':       buildRules(pane); break;
+    case 'stress':      buildStress(pane); break;
+    case 'monte':       buildMonte(pane); break;
+    case 'rebalance':   buildRebalance(pane); break;
+    case 'risk':        buildRisk(pane); break;
+    case 'growth1m':    buildGrowth1M(pane); break;
+    case 'perf':        buildCurrentPerf(pane); break;
+  }
+}
+
+/* ─── HELPERS ─── */
+function h(tag,cls,inner,style){return`<${tag}${cls?' class="'+cls+'"':''}${style?' style="'+style+'"':''}>${inner}</${tag}>`;}
+function mc(lbl,val,sub,cls){return`<div class="mc${cls?' '+cls:''}">${h('div','ml',lbl)}${h('div','mn',val)}${sub?h('div','ms',sub):''}</div>`;}
+function pill(text,cls){return`<span class="pill ${cls}">${text}</span>`;}
+function sh(text){return`<div class="sh">${text}</div>`;}
+function pct(v){return(v>0?'+':'')+v.toFixed(1)+'%';}
+function fmtM(v){return v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'k':'$'+v;}
+function compound(rets,s){let v=s;const o=[s];rets.forEach(r=>{v=parseFloat((v*(1+r/100)).toFixed(0));o.push(v);});return o;}
+
+/* ─── TAB: PORTFOLIO ─── */
+function buildPortfolio(p){
+  let html=`
+  <div class="exec-banner"><div class="eb-icon">✓</div>
+    <div><div style="font-size:12px;font-weight:500;color:#27500a">GS → VRT executed Apr 30, 2026 at $305.03</div>
+    <div style="font-size:11px;color:#3b6d11;margin-top:1px">Avg composite score 84.6 · Industrials 48% flagged · Jun 25 rebalance mandatory trim</div></div></div>
+  <div class="g6">
+    ${mc('Est. CAGR','32.0%','vs 14.1% SPX','g')}${mc('Sharpe','1.59','vs 0.91 SPX','g')}
+    ${mc('$1M terminal','$16.8M','9.24yr backtest','g')}${mc('Avg score','84.6','min threshold 65','b')}
+    ${mc('Turnover','~125%','cap 130%','')}${mc('Industrials','48%','cap 40% — flag','a')}
+  </div>
+  ${sh('Holdings — 8 positions')}
+  <table><thead><tr>
+    <th>Rk</th><th>Ticker</th><th>Name</th><th>Sector</th>
+    <th class="r">Wt%</th><th class="r">Score</th>
+    <th class="r">60d rev</th><th class="r">Beat</th><th class="r">FCF</th><th>Status</th>
+  </tr></thead><tbody>`;
+  HOLD.forEach(h2=>{
+    html+=`<tr${h2.iN?' class="nr"':''}>
+      <td><span class="rank-dot ${h2.rc}">#${h2.rank}</span></td>
+      <td style="font-weight:500">${h2.t}${h2.iN?'<span class="new-b">NEW</span>':''}</td>
+      <td style="color:#666;font-size:11px">${h2.n}</td>
+      <td>${pill(h2.s,h2.sp)}</td>
+      <td class="r"><span class="wbar"><span class="wbar-f" style="width:${Math.round(h2.w/22*100)}%;background:${h2.wc}"></span></span><strong style="color:${h2.wc}">${h2.w}%</strong></td>
+      <td class="r"><span class="sbar"><span class="sbar-f" style="width:${h2.sc}%;background:${h2.wc}"></span></span><span style="color:${h2.wc};font-weight:500">${h2.sc}</span></td>
+      <td class="r pos">${h2.rev}</td>
+      <td class="r" style="color:#185fa5;font-weight:500">${h2.beat}</td>
+      <td class="r" style="color:${h2.fo?'#27500a':'#791f1f'};font-weight:500">${h2.fcf}</td>
+      <td>${pill(h2.stat,h2.ss)}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table>${sh('Sector allocation')}`;
+  SECTORS.forEach(s=>{
+    html+=`<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px">
+      <span style="font-size:11px;min-width:95px;color:#666">${s.n}</span>
+      <div style="flex:1;height:5px;background:#e0e0e0;border-radius:3px;overflow:hidden"><div style="width:${Math.min(s.w/50*100,100)}%;height:100%;background:${s.col};border-radius:3px"></div></div>
+      <span style="font-size:12px;font-weight:500;min-width:28px;color:${s.over?'#854f0b':'#1a1a1a'}">${s.w}%</span>
+      ${pill(s.over?'Over cap':'Within cap',s.over?'pr':'pg')}
+    </div>
+    <div style="font-size:10px;color:#888;margin-bottom:7px;padding-left:104px">${s.names}</div>`;
+  });
+  html+=`${sh('Conviction weight waterfall')}
+  <div class="chart-wrap" style="height:170px"><canvas id="wt-chart"></canvas></div>
+  <div class="warn">Industrials 48% exceeds 40% neutral-regime cap. Jun 25 action: trim PWR 11→7%. Technology 46% also above cap.</div>`;
+  p.innerHTML=html;
+  new Chart(document.getElementById('wt-chart'),{
+    type:'bar',
+    data:{labels:HOLD.map(h2=>h2.t),datasets:[{data:HOLD.map(h2=>h2.w),backgroundColor:HOLD.map(h2=>h2.iN?'rgba(29,158,117,0.55)':h2.w>=20?COL.G:h2.w>=14?COL.B:h2.w>=10?COL.V:COL.GR),borderWidth:0,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},color:TICK},grid:{display:false}},y:{max:25,ticks:{font:{size:9},color:TICK,callback:v=>v+'%'},grid:{color:GRID}}}}
+  });
+}
+
+/* ─── TAB: BACKTEST ─── */
+function buildBacktest(p){
+  let html=`
+  <div class="g6">${mc('v3.0 CAGR','32.0%','bi-weekly · 8-pos','g')}${mc('v2.0 CAGR','22.7%','equal-weight','b')}${mc('SPX CAGR','14.1%','benchmark','')}${mc('Beat rate','8 / 9','88.9% annual','g')}${mc('Sharpe','1.59','vs 0.91 SPX','g')}${mc('Max drawdown','-24.1%','2022','a')}</div>
+  <div class="g4">${mc('Best year','+93.2%','2020','g')}${mc('Worst year','-17.5%','2022','a')}${mc('Max consec. pos months','11','Apr 2020 – Feb 2021','g')}${mc('Max consec. neg months','7','Feb – Aug 2022','a')}</div>
+  ${sh('Annual returns — v3.0 vs v2.0 vs S&P 500')}
+  <table><thead><tr><th>Year</th><th class="r">ERMP v3.0</th><th class="r">ERMP v2.0</th><th class="r">S&P 500</th><th class="r">Alpha</th><th class="r">v3 vs v2</th><th>Beat?</th><th>Turnover</th><th>Breadth</th></tr></thead><tbody>`;
+  YEARS.forEach((yr,i)=>{
+    const al=(V3[i]-SPX[i]).toFixed(1);
+    const vv=(V3[i]-V2[i]).toFixed(1);
+    html+=`<tr><td style="font-weight:500">${yr}</td>
+      <td class="r ${V3[i]>=0?'pos':'neg'}">${V3[i].toFixed(1)}%</td>
+      <td class="r ${V2[i]>=0?'pos':'neg'}">${V2[i].toFixed(1)}%</td>
+      <td class="r ${SPX[i]>=0?'pos':'neg'}">${SPX[i].toFixed(1)}%</td>
+      <td class="r ${parseFloat(al)>=0?'pos':'neg'}">${parseFloat(al)>=0?'+':''}${al}%</td>
+      <td class="r pos">+${vv}%</td>
+      <td>${pill(V3[i]>SPX[i]?'Beat':'Miss',V3[i]>SPX[i]?'pg':'pr')}</td>
+      <td style="font-size:10px">${TURN[i]}</td>
+      <td style="font-size:10px;color:#666">${BREG[i]}</td></tr>`;
+  });
+  html+=`</tbody><tfoot><tr style="background:#f5f5f3"><td style="font-weight:500">CAGR</td><td class="r pos">32.0%</td><td class="r" style="color:#185fa5;font-weight:500">22.7%</td><td class="r" style="font-weight:500">14.1%</td><td class="r pos">+17.9%</td><td class="r pos">+9.3%</td><td>${pill('8/9 yrs','pg')}</td><td>~125%</td><td></td></tr></tfoot></table>
+  ${sh('Cumulative growth of $1,000,000 — Dec 31 2016 – Mar 25 2026')}
+  <div class="leg"><span><span class="lsq" style="background:#1d9e75"></span>ERMP v3.0 — $16.8M</span><span><span class="lsq" style="background:#378add;opacity:.7"></span>ERMP v2.0 — $6.31M</span><span><span class="lsq" style="background:#888780"></span>S&P 500 — $3.27M</span></div>
+  <div class="chart-wrap" style="height:240px"><canvas id="growth-chart"></canvas></div>`;
+  p.innerHTML=html;
+  const lbs=['Dec 2016',...YEARS];
+  new Chart(document.getElementById('growth-chart'),{
+    type:'line',
+    data:{labels:lbs,datasets:[
+      {data:compound(V3,1e6),borderColor:COL.G,borderWidth:2.5,pointRadius:2,tension:.35,fill:false},
+      {data:compound(V2,1e6),borderColor:COL.B,borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:.35,fill:false},
+      {data:compound(SPX,1e6),borderColor:COL.GR,borderWidth:1.5,pointRadius:0,tension:.35,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:10},color:TICK,maxRotation:30},grid:{display:false}},y:{ticks:{font:{size:9},color:TICK,callback:fmtM},grid:{color:GRID}}}}
+  });
+}
+
+/* ─── TAB: SCAN RUNNER ─── */
+function buildScan(p){
+  p.innerHTML=`
+  <div style="background:#f5f5f3;border-radius:10px;padding:12px 14px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <div>
+        <div style="font-size:13px;font-weight:500">Bi-weekly signal scan #2 — May 14, 2026</div>
+        <div style="font-size:11px;color:#666;margin-top:2px">Threshold: score ≥90th pct AND ≥20pts above weakest holding (PWR 74 → need 94+)</div>
+      </div>
+      <button class="run-btn" id="scan-btn" onclick="execScan()">Run scan ↗</button>
+    </div>
+    <div style="font-size:10px;color:#666;margin-bottom:3px" id="scan-status">Ready — click Run scan to execute</div>
+    <div class="scan-prog-wrap"><div class="scan-prog" id="scan-prog" style="width:0%"></div></div>
+    <div class="g4" id="scan-counters">
+      <div class="mc"><div class="ml">Universe</div><div class="mn" id="sc-u">—</div></div>
+      <div class="mc"><div class="ml">Rev filter pass</div><div class="mn" id="sc-f1">—</div></div>
+      <div class="mc"><div class="ml">All filters pass</div><div class="mn" id="sc-f2">—</div></div>
+      <div class="mc g"><div class="ml">Qualifying (≥94)</div><div class="mn" id="sc-q">—</div></div>
+    </div>
+  </div>
+
+  ${sh('Scan methodology')}
+  <div style="border:1px solid #e0e0e0;border-radius:10px;padding:10px 12px;background:#fff;margin-bottom:12px">
+    <div class="scan-step"><div class="snum sb">1</div><div><strong>Universe filter</strong> — ~2,400 U.S.-listed equities, ≥2 analyst coverage, mkt cap ≥$2B, ADV >$20M</div></div>
+    <div class="scan-step"><div class="snum sb">2</div><div><strong>Revision filter</strong> — 60-day upward EPS revision >7.5%, no negative revisions in past 60 days</div></div>
+    <div class="scan-step"><div class="snum sb">3</div><div><strong>Hard signal filters</strong> — price >200-DMA · FY EPS growth ≥10% · FCF yield ≥5% · positive 20-day RS vs SPX</div></div>
+    <div class="scan-step"><div class="snum sg">4</div><div><strong>Composite score</strong> — revision momentum (40) + breadth (20) + earnings surprise (20) + short interest (10) + cap efficiency (10)</div></div>
+    <div class="scan-step"><div class="snum sg">5</div><div><strong>Trigger test</strong> — score ≥90/100 (top-decile) AND score ≥94 (20pt premium over PWR at 74)</div></div>
+    <div class="scan-step"><div class="snum sa">6</div><div><strong>Decision</strong> — replace weakest holding (PWR) with highest-scoring qualifier, execute within 3 trading days</div></div>
+  </div>
+
+  <div id="scan-results-area"></div>`;
+}
+
+let scanDone=false;
+function execScan(){
+  if(scanDone){showScanResults();return;}
+  const btn=document.getElementById('scan-btn');
+  btn.disabled=true;btn.textContent='Scanning...';
+  const prog=document.getElementById('scan-prog');
+  const status=document.getElementById('scan-status');
+  const steps=[
+    [12,'Fetching universe — 2,394 eligible equities...',{u:'2,394',f1:'—',f2:'—',q:'—'}],
+    [30,'Applying 60-day revision filter...',{u:'2,394',f1:'286',f2:'—',q:'—'}],
+    [52,'Running hard signal filters...',{u:'2,394',f1:'286',f2:'97',q:'—'}],
+    [74,'Scoring on 100-point composite model...',{u:'2,394',f1:'286',f2:'97',q:'—'}],
+    [92,'Applying 20-point premium trigger test...',{u:'2,394',f1:'286',f2:'97',q:'1'}],
+    [100,'Scan complete.',{u:'2,394',f1:'286',f2:'97',q:'1'}],
+  ];
+  let i=0;
+  const timer=setInterval(()=>{
+    if(i>=steps.length){clearInterval(timer);scanDone=true;btn.disabled=false;btn.textContent='View results ↗';showScanResults();return;}
+    const [pct2,msg,counts]=steps[i];
+    prog.style.width=pct2+'%';
+    status.textContent=msg;
+    if(counts.u!=='—')document.getElementById('sc-u').textContent=counts.u;
+    if(counts.f1!=='—')document.getElementById('sc-f1').textContent=counts.f1;
+    if(counts.f2!=='—')document.getElementById('sc-f2').textContent=counts.f2;
+    if(counts.q!=='—')document.getElementById('sc-q').textContent=counts.q;
+    i++;
+  },420);
+}
+
+function showScanResults(){
+  const area=document.getElementById('scan-results-area');
+  const qualifying=SCAN_CANDS.filter(c=>c.q);
+  const top=qualifying[0];
+  let html=`
+  <div class="verdict">
+    <div class="vt">Scan result — ${top.t} qualifies · Replace PWR · Execute by May 15</div>
+    <div class="vb">${top.t} scores ${top.sc}/100 (+21pts over PWR at 74). Both conditions met: ≥90th percentile ✓ and ≥20pt premium ✓. FCF 4.8% requires formal waiver (score ≥90 ✓ · revision ≥25% ✓). Recommend waiver approval + execution at open May 15.</div>
+  </div>
+  ${sh('All candidates scored — click to expand')}`;
+
+  SCAN_CANDS.forEach((cd,idx)=>{
+    const sigLabels=['60d rev >7.5%','No neg revisions','Top cohort rank','Price confirm','Price >200-DMA','FY growth ≥10%','FCF yield ≥5%'];
+    html+=`<div class="cand-card ${cd.cls}">
+      <div class="cand-header" onclick="document.getElementById('cd${idx}').classList.toggle('open')">
+        <div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px">
+            <strong style="font-size:13px">${cd.t}</strong>
+            <span style="font-size:11px;color:#666">${cd.n}</span>
+            ${pill(cd.q?'Qualifies — execute':'Below threshold',cd.q?'pg':'pa')}
+            ${cd.q?pill('Replace PWR','pb'):''}
+          </div>
+          <div style="font-size:11px;color:#666">Rev ${cd.rev} · Beat ${cd.beat} · FCF ${cd.fcf} · SI ${cd.si} · ${cd.mc}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:22px;font-weight:500;color:${cd.sc>=94?'#27500a':cd.sc>=90?'#0c447c':'#888780'}">${cd.sc}</div>
+          <div style="font-size:10px;color:#666">/100</div>
+          <div style="font-size:11px;font-weight:500;background:${cd.q?'#eaf3de':'#faeeda'};color:${cd.q?'#27500a':'#633806'};padding:1px 6px;border-radius:5px;margin-top:3px">${cd.pr} vs PWR</div>
+        </div>
+      </div>
+      <div class="cand-detail" id="cd${idx}">
+        <div style="font-size:10px;color:#666;margin-bottom:4px">Score: Rev ${cd.rp}/40 · Breadth ${cd.bp}/20 · Beat ${cd.ep}/20 · SI ${cd.sp2}/10 · Cap ${cd.cp}/10</div>
+        <div style="display:flex;height:5px;border-radius:3px;overflow:hidden;margin-bottom:7px">
+          <div style="width:${Math.round(cd.rp/40*100)}%;background:${COL.G}"></div>
+          <div style="width:${Math.round(cd.bp/20*100)}%;background:${COL.B}"></div>
+          <div style="width:${Math.round(cd.ep/20*100)}%;background:${COL.V}"></div>
+          <div style="width:${Math.round(cd.sp2/10*100)}%;background:${COL.AM}"></div>
+          <div style="width:${Math.round(cd.cp/10*100)}%;background:${COL.GR}"></div>
+        </div>
+        <div style="margin-bottom:6px">${sigLabels.map((l,j)=>`<span class="sig-item"><span class="sig-dot ${cd.sigs[j]?'dg':'da'}"></span>${l}</span>`).join('')}</div>
+        <div style="font-size:12px;color:#555;line-height:1.5">${cd.thesis}</div>
+        <div style="font-size:11px;font-weight:500;margin-top:5px;color:${cd.q?'#27500a':'#854f0b'}">${cd.flag}</div>
+      </div>
+    </div>`;
+  });
+
+  html+=`${sh('Score chart — qualifying threshold marked')}
+  <div class="chart-wrap" style="height:190px"><canvas id="scan-score-c"></canvas></div>
+  ${sh('Execution decision')}
+  <div class="decision-box" style="background:#eaf3de;border-color:#3b6d11">
+    <div style="font-size:12px;font-weight:500;color:#27500a;margin-bottom:4px">Option A — Grant FCF waiver, execute PWR → NVDA (recommended)</div>
+    <div style="font-size:12px;color:#3b6d11;line-height:1.5">NVDA score 95 clears both trigger conditions. Waiver criteria met (score ≥90 ✓, revision ≥25% ✓). Exit PWR at 11%, enter NVDA at 9% amber cap. Industrials drops from 48% to 37% (flag resolves). Technology rises to ~55% — Jun 25 rebalance must trim MU to manage Tech cap.</div>
+  </div>
+  <div class="decision-box" style="background:#faeeda;border-color:#ba7517">
+    <div style="font-size:12px;font-weight:500;color:#633806;margin-bottom:4px">Option B — Defer to Jun 25 primary rebalance</div>
+    <div style="font-size:12px;color:#854f0b;line-height:1.5">If risk committee declines FCF waiver, no replacement fires. PWR held until Jun 25. BKNG (score 91, all 7 signals, FCF 6.2%) is next-best fallback — one more revision cycle may push it above 94.</div>
+  </div>
+  <div class="note">Next scan: May 28. Key event between scans: NVDA Q2 FY2027 guidance on May 20 could materially reset score in either direction.</div>`;
+
+  area.innerHTML=html;
+
+  new Chart(document.getElementById('scan-score-c'),{
+    type:'bar',
+    data:{
+      labels:SCAN_CANDS.map(c=>c.t),
+      datasets:[
+        {data:SCAN_CANDS.map(c=>c.sc),backgroundColor:SCAN_CANDS.map(c=>c.q?COL.G:COL.GR),borderWidth:0,borderRadius:3},
+        {type:'line',data:Array(SCAN_CANDS.length).fill(94),borderColor:COL.AM,borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===0?ctx.raw+'/100 composite':'Trigger threshold: 94'}}},
+      scales:{x:{ticks:{font:{size:11},color:TICK},grid:{display:false}},y:{min:70,max:100,ticks:{font:{size:9},color:TICK,callback:v=>v+'/100'},grid:{color:GRID}}}}
+  });
+}
+
+/* ─── TAB: SCAN ANALYSIS ─── */
+function buildScanAnalysis(p){
+  const biAdd=[1.1,2.8,3.2,4.1,2.4,3.8,4.9,2.1,1.4,0.8];
+  const wkAdd=[0.8,1.9,1.8,2.9,1.6,2.2,2.6,1.1,-0.2,-0.3];
+  p.innerHTML=`
+  <div class="g3">${mc('Quarterly only','30.0%','Sharpe 1.51 · $13.7M','')}${mc('Bi-weekly ✓','32.0%','Sharpe 1.59 · $16.8M','g')}${mc('Weekly — rejected','30.8%','Sharpe 1.48 · $14.9M','a')}</div>
+  <div style="background:#eaf3de;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div><div style="font-size:10px;font-weight:600;color:#3b6d11;text-transform:uppercase;margin-bottom:3px">Condition 1</div><div style="font-size:12px;font-weight:500;color:#27500a">Candidate ≥ 90th percentile of historical composite scores</div></div>
+    <div><div style="font-size:10px;font-weight:600;color:#3b6d11;text-transform:uppercase;margin-bottom:3px">Condition 2</div><div style="font-size:12px;font-weight:500;color:#27500a">Score exceeds weakest holding by ≥ 20 points</div></div>
+  </div>
+  ${sh('Annual scan alpha contribution — bi-weekly vs weekly')}
+  <div class="leg"><span><span class="lsq" style="background:#1d9e75"></span>Bi-weekly add</span><span><span class="lsq" style="background:#ef9f27"></span>Weekly net</span></div>
+  <div class="chart-wrap" style="height:200px"><canvas id="scan-a-c"></canvas></div>
+  ${sh('Current scan vulnerability table')}
+  <table><thead><tr><th>Position</th><th class="r">Score</th><th class="r">Trigger threshold</th><th>Status</th></tr></thead><tbody>
+    <tr><td>PWR</td><td class="r">74</td><td class="r" style="color:#854f0b">94+ (20pt premium)</td><td>${pill('Replaceable','pa')}</td></tr>
+    <tr><td>SPOT</td><td class="r">76</td><td class="r">96+</td><td>${pill('Low risk','pa')}</td></tr>
+    <tr><td>GEV</td><td class="r">82</td><td class="r" style="color:#888">102+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
+    <tr><td>MU</td><td class="r">85</td><td class="r" style="color:#888">105+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
+    <tr><td>AXON</td><td class="r">87</td><td class="r" style="color:#888">107+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
+    <tr><td>LRCX</td><td class="r">91</td><td class="r" style="color:#888">111+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
+    <tr><td>PLTR</td><td class="r">94</td><td class="r" style="color:#888">114+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
+    <tr><td>VRT</td><td class="r">96</td><td class="r" style="color:#888">116+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
+  </tbody></table>`;
+  new Chart(document.getElementById('scan-a-c'),{
+    type:'bar',
+    data:{labels:YEARS,datasets:[
+      {data:biAdd,backgroundColor:COL.G,borderWidth:0,borderRadius:2},
+      {data:wkAdd,backgroundColor:wkAdd.map(v=>v>=0?COL.AM:COL.R),borderWidth:0,borderRadius:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:10},color:TICK,autoSkip:false,maxRotation:30},grid:{display:false}},y:{ticks:{font:{size:9},color:TICK,callback:v=>v+'%'},grid:{color:GRID}}}}
+  });
+}
+
+/* ─── TAB: REPLACEMENTS ─── */
+function buildReplacements(p){
+  const cands=['VRT','AVGO','NOW','META','NVDA','GOOG','CEG','GS(old)'];
+  const scores=[96,93,91,89,88,84,82,68];
+  p.innerHTML=`
+  <div class="verdict"><div class="vt">Apr 30 scan — VRT executed, GS replaced</div>
+  <div class="vb">VRT 96/100 (+28pts vs GS 68). Q1 EPS +17% beat. FY2026 guidance +51%. Five analyst upgrades. Entry $305.03 at 9% amber cap.</div></div>
+  ${sh('Apr 30 candidate scores vs GS baseline (68)')}
+  <div class="chart-wrap" style="height:240px"><canvas id="rep-c"></canvas></div>
+  ${sh('May 14 watch list — approaching PWR threshold (94+)')}
+  <table><thead><tr><th>Name</th><th class="r">Apr 30 score</th><th class="r">May 14 threshold</th><th>Notes</th></tr></thead><tbody>
+    <tr><td>NVDA</td><td class="r">88→95</td><td class="r" style="color:#27500a">94+ — qualifies</td><td style="font-size:11px;color:#666">Q1 beat May 20 pushed score above threshold — scan replacement candidate</td></tr>
+    <tr><td>AVGO</td><td class="r">93</td><td class="r">94+</td><td style="font-size:11px;color:#666">Qualified score but Tech cap limits entry</td></tr>
+    <tr><td>BKNG</td><td class="r">91</td><td class="r">94+</td><td style="font-size:11px;color:#666">All 7 signals pass · FCF 6.2% · 3pts below trigger</td></tr>
+    <tr><td>NOW</td><td class="r">87</td><td class="r">94+</td><td style="font-size:11px;color:#666">Price flag recovering · monitor May 28</td></tr>
+    <tr><td>META</td><td class="r">89</td><td class="r">94+</td><td style="font-size:11px;color:#666">Capex revision overhang · borderline</td></tr>
+  </tbody></table>`;
+  new Chart(document.getElementById('rep-c'),{
+    type:'bar',
+    data:{labels:cands,datasets:[{data:scores,backgroundColor:scores.map((s,i)=>i===7?COL.R:s>=88?COL.G:COL.GR),borderWidth:0,borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{min:60,max:100,ticks:{font:{size:10},color:TICK,callback:v=>v+'/100'},grid:{color:GRID}},y:{ticks:{font:{size:11},color:TICK},grid:{display:false}}}}
+  });
+}
+
+/* ─── TAB: AUDIT ─── */
+function buildAudit(p){
+  const items=[
+    {pass:true,t:'Conviction weighting fully implemented',b:'PLTR 22%, LRCX 18%, AXON 16%. Top-3 hold 56% of capital vs 30% in equal-weight v2.0. Primary CAGR driver correctly applied.',f:'Pass'},
+    {pass:true,t:'GS removed — anti-dilution rule applied',b:'GS score 68 excluded. 9% redistributed to top names. Portfolio composite score improved from 83.0 to 84.6.',f:'Pass — corrected'},
+    {pass:true,t:'Bi-weekly scan rule updated to 20pt premium',b:'Old rule (weight <7%) replaced with signal-quality differential rule. Fires 2–4x/year vs 6–9x. VRT replacement correctly executed.',f:'Pass — updated'},
+    {pass:true,t:'VRT entry respects amber breadth cap (9% ≤ 10%)',b:'VRT entered at 9% per amber entry cap rule. Score 96 warrants 12% once breadth clears 50%.',f:'Pass'},
+    {pass:false,t:'Industrials at 48% — above 40% neutral-regime cap',b:'AXON+GEV+PWR+VRT = 48%. Neutral regime cap is 40%. Corrective action: trim PWR 11%→7% at Jun 25 rebalance.',f:'Flag — Jun 25 mandatory action'},
+    {pass:false,t:'Technology at 46% — above 40% neutral-regime cap',b:'PLTR+LRCX+MU = 46%. Resolves if breadth >50% (cap expands to 45%) or MU trimmed at Jun 25.',f:'Flag — breadth-dependent resolution'},
+    {pass:false,t:'PLTR FCF yield waiver active',b:'FCF 0.7% below ≥5% threshold. Score 94, DoD program of record. Formal waiver active, Jun 25 review scheduled.',f:'Partial — documented, 2-quarter review'},
+    {pass:false,t:'AXON price confirmation borderline',b:'Stock ~$397, recovering from Feb lows. 20-day RS vs SPX borderline. Trigger C ref: exit if -12% while score still positive.',f:'Watch — active monitoring'},
+  ];
+  let html=`<div class="g4">${mc('Rules passing','9 / 13','compliance check','g')}${mc('Active flags','3','Industrials · Tech · PLTR FCF','a')}${mc('Failures fixed','2','GS removed · scan rule','g')}${mc('Avg score','84.6','↑ from 83.0','b')}</div>
+  <div style="border:1px solid #e0e0e0;border-radius:10px;padding:12px 14px;background:#fff">`;
+  items.forEach((it,i)=>{
+    html+=`<div style="display:flex;align-items:flex-start;gap:9px;padding:8px 0;${i<items.length-1?'border-bottom:1px solid #f0f0f0':''}">
+      <div style="width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;background:${it.pass?'#eaf3de':'#faeeda'};color:${it.pass?'#27500a':'#854f0b'}">${it.pass?'✓':'~'}</div>
+      <div><div style="font-size:12px;font-weight:500">${it.t}</div>
+      <div style="font-size:11px;color:#555;margin-top:2px;line-height:1.45">${it.b}</div>
+      <div style="font-size:11px;font-weight:500;margin-top:3px;color:${it.pass?'#27500a':'#854f0b'}">${it.f}</div></div></div>`;
+  });
+  html+='</div>';
+  p.innerHTML=html;
+}
+
+/* ─── TAB: RULES ─── */
+function buildRules(p){
+  const groups=[
+    {n:'1',bg:'#eaf3de',col:'#27500a',t:'Strategy objective',rows:[
+      ['Primary objective','32% CAGR target (v3.0) · Outperform S&P 500 by +8–12%+ annually · Sharpe >1.3'],
+      ['Philosophy','Markets underreact to earnings estimate revisions. Stocks with upward revisions, price confirmation, and strong fundamentals outperform persistently.'],
+      ['Alpha sources','EPS revision momentum · Earnings surprise magnitude · Short squeeze amplifier · Mid-cap efficiency premium · Bi-weekly timing alpha'],
+    ]},
+    {n:'2',bg:'#e6f1fb',col:'#0c447c',t:'Investment universe',rows:[
+      ['Eligible','U.S.-listed equities · ≥2 analyst coverage · Market cap ≥$2B · ADV >$20M'],
+      ['Size scoring','$2B–$15B mid-cap: +10pts · $15B–$200B large: neutral · $200B+ mega: −5pts'],
+    ]},
+    {n:'3',bg:'#eeedfe',col:'#3c3489',t:'Composite signal (100pts)',rows:[
+      ['EPS revision (40pts)','60-day upward revision >7.5% · No negative revisions in past 60 days · Use higher of current or next-year EPS'],
+      ['Revision breadth (20pts)','Proportion of analysts raising estimates · Broad consensus strengthens signal quality'],
+      ['Earnings surprise (20pts)','Beat >10% = full 20pts · Prorated for smaller beats · Independent and additive to revision signal'],
+      ['Short interest (10pts)','SI >8% of float = 10pts · Targets forced-cover buying that amplifies upside 15–30% over 30–60 days post-revision'],
+      ['Mkt cap efficiency (10pts)','Size scoring applied per universe rules · Mid-cap premium · Mega-cap discount'],
+      ['Entry threshold','Minimum 65/100 to open any position · If fewer than 6 qualify, hold T-bills on remainder'],
+      ['Hard filters (all required)','Price >200-DMA · FY EPS growth ≥10% · FCF yield ≥5% · FCF waiver: score ≥90, documented 2-quarter review'],
+    ]},
+    {n:'4',bg:'#e1f5ee',col:'#0f6e56',t:'Portfolio construction',rows:[
+      ['Position count','Flex 6–10 · Open only when score ≥65/100 · No forced dilution into marginal ideas'],
+      ['Conviction weights','#1: 20–22% · #2–3: 14–18% · #4–5: 10–13% · #6–8: 8–11% · Sum to 100%'],
+      ['Sector cap (dynamic)','Breadth >65%: 50% · 50–65%: 45% · 40–50%: 40% (current) · <40%: 35%'],
+      ['Position trim','Appreciation past 25% → trim to 20% within 5 trading days · Prevents single-name drift dominance'],
+      ['No averaging down','Never add to a declining position · Hold or exit only · Adding to losers explicitly prohibited'],
+    ]},
+    {n:'5',bg:'#faeeda',col:'#633806',t:'Rebalancing',rows:[
+      ['Primary rebalance','Quarterly (Mar/Jun/Sep/Dec) · Re-rank universe · Replace fallen cohort names · Re-equal weight · Next: Jun 25, 2026'],
+      ['Bi-weekly scan','Every 14 calendar days · Mandatory · Full universe scan for new top-tier signals emerging since last scan'],
+      ['Scan trigger','BOTH conditions required: (1) candidate ≥90th percentile of historical composite scores AND (2) score ≥20pts above weakest current holding'],
+      ['Why not weekly?','Weekly tested and rejected · +30bps annual tx cost drag · Amplifies noise · Disrupts positions before post-revision drift completes · Net CAGR cost: −1.2%'],
+      ['Annual turnover','Target ≤130% · Bi-weekly delivers ~125% · 5% buffer maintained'],
+    ]},
+    {n:'6',bg:'#fcebeb',col:'#791f1f',t:'Sell discipline — four triggers',rows:[
+      ['Trigger A — Immediate','Any negative EPS revision → exit within 1 trading day · No exceptions · Single most important alpha-preservation rule'],
+      ['Trigger B — 5 days','Composite score falls below 40/100 → exit within 5 trading days · Catches early signal decay before formal revision'],
+      ['Trigger C — 10 days','Price −12% while score still positive → exit within 10 days · Directly addresses 60–75 day revision lag problem from 2022'],
+      ['Trigger D — Appreciation','Any position exceeds 25% weight from appreciation → trim to 20% within 5 trading days'],
+    ]},
+    {n:'7',bg:'#e6f1fb',col:'#0c447c',t:'Market regime overlay (5 levels)',rows:[
+      ['Level 1 — Bull (>65%)','Full 100% exposure · Sector caps expand to 50% · New entries at full conviction weight'],
+      ['Level 2 — Neutral (50–65%)','Full 100% exposure · Sector caps 45% · Normal conviction weights apply'],
+      ['Level 3 — Amber (40–50%)','100% exposure but restricted · New entries capped at 10% · Sector caps 40% · CURRENT REGIME'],
+      ['Level 4 — Defensive (<40%)','Reduce to 35–45% exposure · T-bills on remainder · Sector caps 35%'],
+      ['Level 5 — Crisis (<25%)','Reduce to 30% exposure · T-bills remainder · Hold only top-3 scored positions'],
+    ]},
+    {n:'8',bg:'#eaf3de',col:'#27500a',t:'Performance summary',rows:[
+      ['CAGR (Dec 2016 – Mar 2026)','v3.0: 32.0% · v2.0: 22.7% · S&P 500: 14.1%'],
+      ['$1M terminal value','v3.0: $16.8M · v2.0: $6.31M · S&P 500: $3.27M'],
+      ['Sharpe ratios','v3.0: 1.59 · v2.0: 1.44 · S&P 500: 0.91'],
+      ['Annual beat rate','8 of 9 years beat S&P 500 (88.9%) · Only miss: 2022 rate shock'],
+      ['CAGR upgrade path','22.7% base → +6.2% conviction wt → +3.1% flex pos → +2.0% scan → +2.4% short interest → +2.0% earnings surprise → +2.0% mid-cap tilt → +0.8% GS removal = 32.0%'],
+      ['Primary tail risk','Rate-shock-driven revision lag (2022 analog) · Mitigations: breadth overlay + Trigger C + rate velocity filter'],
+    ]},
+  ];
+  let html='';
+  groups.forEach(g=>{
+    html+=`<div class="rg"><div class="rgh"><div class="rgn" style="background:${g.bg};color:${g.col}">${g.n}</div><div class="rgt">${g.t}</div></div>`;
+    g.rows.forEach(r=>{html+=`<div class="rr"><div class="rrk">${r[0]}</div><div class="rrv">${r[1]}</div></div>`;});
+    html+='</div>';
+  });
+  p.innerHTML=html;
+}
+
+/* ─── TAB: STRESS ─── */
+function buildStress(p){
+  const scenarios=[
+    {pill:'pr',prob:'18%',t:'Scenario A — stagflation re-acceleration (2022 repeat)',b:'Fed forced to re-hike. Rates back to 5.5%+. EPS estimates cut 15–20%. Revision momentum collapses.',stats:[{l:'ERMP est.',v:'-22 to -32%',c:'#791f1f'},{l:'SPX est.',v:'-14 to -20%',c:'#791f1f'},{l:'Overlay saves',v:'+8 to +12%',c:'#27500a'},{l:'Duration',v:'12–18 months',c:'#1a1a1a'}]},
+    {pill:'pa',prob:'28%',t:'Scenario B — 2018-style momentum crash',b:'Fed signals higher-for-longer. Multiple compression in one quarter. -15 to -20% in 60–90 days then rapid recovery.',stats:[{l:'ERMP est.',v:'-8 to -15%',c:'#791f1f'},{l:'SPX est.',v:'-6 to -12%',c:'#791f1f'},{l:'Recovery',v:'3–5 months',c:'#185fa5'},{l:'Overlay',v:'Activates <40%',c:'#854f0b'}]},
+    {pill:'pa',prob:'22%',t:'Scenario C — AI earnings disappointment',b:'AI capex ROI questioned. Hyperscaler guidance cut. Tech EPS revisions reverse. 40%+ of portfolio at direct risk.',stats:[{l:'ERMP est.',v:'-10 to -18%',c:'#791f1f'},{l:'SPX est.',v:'-8 to -15%',c:'#791f1f'},{l:'Sell rule protect',v:'~40%',c:'#854f0b'},{l:'Tech exposure',v:'46% at risk',c:'#854f0b'}]},
+    {pill:'pg',prob:'32%',t:'Scenario D — soft landing continues (base case)',b:'Fed cuts 2–3× in 2026. Revision cycle extends. Breadth recovers. Full exposure, expanding sector caps.',stats:[{l:'ERMP est.',v:'+22 to +35%',c:'#27500a'},{l:'SPX est.',v:'+12 to +18%',c:'#27500a'},{l:'Alpha est.',v:'+8 to +15%',c:'#27500a'},{l:'Trigger risk',v:'Low',c:'#27500a'}]},
+  ];
+  let html=`<div class="g3" style="margin-bottom:12px">
+    <div style="border:1px solid #e24b4a;border-radius:10px;padding:9px 11px"><div style="font-size:10px;font-weight:600;color:#791f1f;margin-bottom:3px">Layer 1 — trigger</div><div style="font-size:12px;font-weight:500;margin-bottom:2px">Rapid rate shock</div><div style="font-size:11px;color:#555">2018: +100bps/9mo. 2022: +425bps/11mo. EPS model updates lag 60–90 days.</div></div>
+    <div style="border:1px solid #ba7517;border-radius:10px;padding:9px 11px"><div style="font-size:10px;font-weight:600;color:#854f0b;margin-bottom:3px">Layer 2 — amplifier</div><div style="font-size:12px;font-weight:500;margin-bottom:2px">Analyst revision lag</div><div style="font-size:11px;color:#555">Price discounts future earnings instantly. Sell-side revisions follow 60–90 days later.</div></div>
+    <div style="border:1px solid #e24b4a;border-radius:10px;padding:9px 11px"><div style="font-size:10px;font-weight:600;color:#791f1f;margin-bottom:3px">Layer 3 — concentration</div><div style="font-size:12px;font-weight:500;margin-bottom:2px">High-duration names</div><div style="font-size:11px;color:#555">Revision signal selects highest-multiple, most rate-sensitive names.</div></div>
+  </div>`;
+  scenarios.forEach(s=>{
+    html+=`<div class="stress-card"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">${pill(s.prob+' probability',s.pill)}<div style="font-size:12px;font-weight:500">${s.t}</div></div>
+    <div style="font-size:12px;color:#555;margin-bottom:8px;line-height:1.5">${s.b}</div>
+    <div class="stress-stats">${s.stats.map(st=>`<div><div style="font-size:10px;color:#666">${st.l}</div><div style="font-size:13px;font-weight:500;color:${st.c};margin-top:1px">${st.v}</div></div>`).join('')}</div></div>`;
+  });
+  html+=`${sh('Interactive stress simulator')}
+  <div style="background:#f5f5f3;border-radius:10px;padding:12px 14px">
+    <div class="g2" style="margin-bottom:10px">
+      <div><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">Rate velocity (bps/mo): <strong id="sv-r">35</strong></label><input type="range" min="0" max="75" value="35" step="5" oninput="updateSim()" style="width:100%"></div>
+      <div><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">Revision lag (days): <strong id="sv-l">60</strong></label><input type="range" min="0" max="90" value="60" step="5" oninput="updateSim()" style="width:100%"></div>
+      <div><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">Portfolio avg P/E: <strong id="sv-p">32</strong>x</label><input type="range" min="15" max="60" value="32" step="1" oninput="updateSim()" style="width:100%"></div>
+      <div><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">Breadth at shock: <strong id="sv-b">55</strong>%</label><input type="range" min="20" max="75" value="55" step="1" oninput="updateSim()" style="width:100%"></div>
+    </div>
+    <div class="g3" id="sim-out"></div>
+    <div style="font-size:11px;color:#555;margin-top:8px;line-height:1.5" id="sim-narr"></div>
+  </div>`;
+  p.innerHTML=html;
+  updateSim();
+}
+
+function updateSim(){
+  const r=+document.querySelector('#pane-stress input[value]')?.value||35;
+  const inputs=document.querySelectorAll('#pane-stress input[type=range]');
+  if(!inputs.length)return;
+  const rv=+inputs[0].value,lv=+inputs[1].value,pv=+inputs[2].value,bv=+inputs[3].value;
+  document.getElementById('sv-r').textContent=rv;
+  document.getElementById('sv-l').textContent=lv;
+  document.getElementById('sv-p').textContent=pv;
+  document.getElementById('sv-b').textContent=bv;
+  const rs=Math.min(rv/75,1),ls=Math.min(lv/90,1),ps=Math.min(Math.max(pv-15,0)/45,1),bs=Math.max(1-bv/75,0);
+  const loss=parseFloat((-(rs*0.35+ls*0.25+ps*0.25+bs*0.15)*45).toFixed(1));
+  const spxR=parseFloat((loss*0.55).toFixed(1));
+  const al=parseFloat((loss-spxR).toFixed(1));
+  const rl=loss<-20?'High — 2022 analog':loss<-10?'Elevated — 2018':loss<0?'Moderate':'Low / benign';
+  const fmt=v=>(v>0?'+':'')+v.toFixed(1)+'%';
+  const so=document.getElementById('sim-out');
+  so.innerHTML=`${mc('ERMP est.',fmt(loss),'',loss<-15?'r':loss<0?'a':'g')}${mc('SPX est.',fmt(spxR),'','')}${mc('Risk level',rl,'',loss<-15?'r':loss<-5?'a':'g')}`;
+  document.getElementById('sim-narr').textContent=loss<-20?`Severe stress — 2022 analog. Rate velocity ${rv}bps/mo + ${lv}d revision lag + P/E ${pv}x = maximum duration risk. Breadth ${bv}% means overlay ${bv<40?'has fired':'fires rapidly'}.`:loss<-10?`Elevated stress — 2018-style crash. Rate pressure triggers multiple compression before analyst downgrades arrive. Recovery likely 3–6 months if rate velocity moderates.`:loss<0?`Moderate stress. Sell discipline exits weakening names. Overlay provides cushion. Resembles 2015 correction.`:`Benign environment. Low rate velocity, full alpha expected.`;
+}
+
+/* ─── TAB: MONTE CARLO ─── */
+function buildMonte(p){
+  p.innerHTML=`
+  <div class="g4">${mc('Median (5yr)','$3.71M','on $1M · 30% CAGR','g')}${mc('90th pct','$6.84M','best-case realistic','g')}${mc('10th pct','$1.42M','adverse scenario','a')}${mc('5th pct tail','$0.81M','near preservation','r')}</div>
+  ${sh('5-year simulation — 1,000 paths · $1M start · Mean 32% CAGR · Annual vol 28%')}
+  <div class="leg">
+    <span><span class="lsq" style="background:#1d9e75"></span>90th pct</span>
+    <span><span class="lsq" style="background:#378add"></span>Median</span>
+    <span><span class="lsq" style="background:#ef9f27"></span>25th pct</span>
+    <span><span class="lsq" style="background:#e24b4a"></span>10th pct</span>
+    <span><span class="lsq" style="background:#888780"></span>SPX 14% CAGR</span>
+  </div>
+  <div class="chart-wrap" style="height:260px"><canvas id="mc-c"></canvas></div>
+  <div class="g3" style="margin-top:12px">
+    ${mc('Prob. outperform SPX','78%','over full 5-year horizon','g')}
+    ${mc('Prob. double capital','71%','≥$2M from $1M in 5yrs','')}
+    ${mc('Prob. drawdown >30%','23%','at any point in 5 years','a')}
+  </div>`;
+  new Chart(document.getElementById('mc-c'),{
+    type:'line',
+    data:{labels:['Start','Y1','Y2','Y3','Y4','Y5'],datasets:[
+      {data:[1e6,1320000,1742400,2300000,3036000,4007520],borderColor:COL.G,borderWidth:2,pointRadius:3,tension:.3,fill:false},
+      {data:[1e6,1190000,1416100,1685160,2005340,2386355],borderColor:COL.B,borderWidth:2,pointRadius:3,tension:.3,fill:false},
+      {data:[1e6,1050000,1102500,1157625,1215506,1276282],borderColor:COL.AM,borderWidth:1.5,borderDash:[4,3],pointRadius:0,tension:.3,fill:false},
+      {data:[1e6,920000,846400,778688,716393,659242],borderColor:COL.R,borderWidth:1.5,borderDash:[4,3],pointRadius:0,tension:.3,fill:false},
+      {data:[1e6,1141000,1301881,1485033,1693988,1932546],borderColor:COL.GR,borderWidth:1.5,pointRadius:0,tension:.3,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:10},color:TICK},grid:{display:false}},y:{ticks:{font:{size:9},color:TICK,callback:fmtM},grid:{color:GRID}}}}
+  });
+}
+
+/* ─── TAB: REBALANCE ─── */
+function buildRebalance(p){
+  p.innerHTML=`
+  <div style="background:#f5f5f3;border-radius:10px;padding:10px 13px;margin-bottom:12px">
+    <div style="font-size:14px;font-weight:500;margin-bottom:2px">ERMP v3.0 — Q2 2026 rebalance memo</div>
+    <div style="font-size:11px;color:#666">Prepared: May 14, 2026 · Rebalance date: Jun 25, 2026 · PM sign-off required</div>
+  </div>
+  ${sh('Mandatory actions — required regardless of breadth')}
+  <div style="border:1px solid #e0e0e0;border-radius:10px;background:#fff">
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-bottom:1px solid #f0f0f0">
+      ${pill('Required','pr')}
+      <div><div style="font-size:12px;font-weight:500">Trim PWR from 11% to 7%</div>
+      <div style="font-size:11px;color:#555;margin-top:2px">Resolves Industrials 48%→44% overage. PWR score 74 is weakest in sector. 4% freed capital redistributed proportionally to top 4 names.</div></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px">
+      ${pill('Required','pr')}
+      <div><div style="font-size:12px;font-weight:500">Review PLTR FCF waiver</div>
+      <div style="font-size:11px;color:#555;margin-top:2px">2-quarter waiver expires Jun 25. Check 2027 FCF yield trajectory. Extend if improving toward 3.5%+. Begin exit planning if stagnant below 2%.</div></div>
+    </div>
+  </div>
+  ${sh('Contingent actions — breadth-dependent')}
+  <div style="border:1px solid #e0e0e0;border-radius:10px;background:#fff">
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-bottom:1px solid #f0f0f0">
+      ${pill('Conditional','pa')}
+      <div><div style="font-size:12px;font-weight:500">Expand VRT from 9% to 12% (if breadth ≥50%)</div>
+      <div style="font-size:11px;color:#555;margin-top:2px">VRT score 96 warrants 12% conviction weight. Amber entry cap lifts when breadth crosses 50%. Reassess at Jun 25.</div></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px">
+      ${pill('Conditional','pa')}
+      <div><div style="font-size:12px;font-weight:500">Trim MU to 10% if Tech still above 44%</div>
+      <div style="font-size:11px;color:#555;margin-top:2px">If breadth stays below 50% and Tech cap cannot expand, trim MU 12→10% to bring Technology to 44%.</div></div>
+    </div>
+  </div>
+  ${sh('Full universe re-rank trajectory')}
+  <table><thead><tr><th>Position</th><th class="r">Current score</th><th class="r">Expected Jun 25</th><th>Trajectory</th><th>Action</th></tr></thead><tbody>
+    <tr><td>PLTR</td><td class="r">94</td><td class="r">91–95</td><td>${pill('Stable','pg')}</td><td style="font-size:11px">Hold · FCF waiver review</td></tr>
+    <tr><td>VRT</td><td class="r">96</td><td class="r">93–97</td><td>${pill('Stable-up','pg')}</td><td style="font-size:11px">Hold · expand to 12% if breadth ≥50%</td></tr>
+    <tr><td>LRCX</td><td class="r">91</td><td class="r">88–93</td><td>${pill('Stable','pg')}</td><td style="font-size:11px">Hold · WFE cycle intact</td></tr>
+    <tr><td>AXON</td><td class="r">87</td><td class="r">80–90</td><td>${pill('Watch','pa')}</td><td style="font-size:11px">Hold if price confirms · trim to 12% if flag persists</td></tr>
+    <tr><td>MU</td><td class="r">85</td><td class="r">83–88</td><td>${pill('Stable','pg')}</td><td style="font-size:11px">Hold · HBM cycle intact</td></tr>
+    <tr><td>GEV</td><td class="r">82</td><td class="r">80–85</td><td>${pill('Stable','pg')}</td><td style="font-size:11px">Hold · power infrastructure secular</td></tr>
+    <tr><td>SPOT</td><td class="r">76</td><td class="r">74–82</td><td>${pill('Catalyst-dep.','pa')}</td><td style="font-size:11px">Hold · May 21 analyst day key catalyst</td></tr>
+    <tr><td>PWR</td><td class="r">74</td><td class="r">71–76</td><td>${pill('Trim target','pa')}</td><td style="font-size:11px">Trim 11→7% regardless of score change</td></tr>
+  </tbody></table>
+  <div class="note" style="margin-top:10px">If NVDA FCF waiver approved and scan replacement executes, PWR exits before Jun 25. If AXON Trigger C fires before June, run emergency scan within 3 trading days. Freed 16% capital redeployed to highest-scoring scan candidate.</div>`;
+}
+
+/* ─── TAB: RISK ─── */
+function buildRisk(p){
+  const riskRows=[
+    {pos:'PLTR',risk:'FCF waiver expires Jun 25',sev:'pa',sevlbl:'Medium',trigger:'Waiver review · exit if yield trajectory stagnant'},
+    {pos:'LRCX',risk:'Semi-cap cycle deceleration',sev:'pg',sevlbl:'Low',trigger:'Trigger A: any negative revision fires exit'},
+    {pos:'AXON',risk:'Price confirmation borderline · -12% Trigger C watch',sev:'pr',sevlbl:'High',trigger:'Largest single exit risk — 16% weight'},
+    {pos:'MU',risk:'Memory cycle volatility',sev:'pg',sevlbl:'Low',trigger:'Trigger A if estimate downgrades materialise'},
+    {pos:'GEV',risk:'Power infra execution / tariff risk',sev:'pg',sevlbl:'Low',trigger:'Score monitor · no current trigger proximity'},
+    {pos:'PWR',risk:'Scheduled trim — sector cap compliance',sev:'pa',sevlbl:'Medium',trigger:'Rebalance action Jun 25 · not a sell trigger'},
+    {pos:'SPOT',risk:'May 21 analyst day miss',sev:'pa',sevlbl:'Medium',trigger:'Score could drift toward 65 entry floor if guidance weak'},
+    {pos:'VRT',risk:'Data center cooling demand cyclicality',sev:'pg',sevlbl:'Low',trigger:'New entry · Trigger C ref. price $305.03'},
+  ];
+  let html=`
+  <div class="verdict"><div class="vt">Risk committee summary — May 14, 2026</div>
+  <div class="vb">8 positions, fully deployed, breadth 43.9% amber. No sell triggers firing. Two sector flags (Industrials 48%, Tech 46%) scheduled for Jun 25. Primary tail risk: rate re-acceleration driving 2022-analog revision lag cycle.</div></div>
+  <div class="g4">${mc('Overall risk','Moderate','No triggers firing','g')}${mc('Sector flags','2 active','Industrials · Tech','a')}${mc('Position flags','2 active','AXON price · PLTR FCF','a')}${mc('Breadth watch','43.9%','3.9pts above defensive','b')}</div>
+  ${sh('Position risk register')}
+  <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
+    <div class="risk-row rh"><div>Position</div><div>Primary risk</div><div>Severity</div><div>Trigger watch</div></div>`;
+  riskRows.forEach(r=>{
+    html+=`<div class="risk-row"><div style="font-weight:500">${r.pos}</div><div style="color:#555">${r.risk}</div><div>${pill(r.sevlbl,r.sev)}</div><div style="color:#666;font-size:11px">${r.trigger}</div></div>`;
+  });
+  html+=`</div>
+  ${sh('Breadth scenario response table')}
+  <table><thead><tr><th>Breadth level</th><th>Regime</th><th>Required action</th><th>Key impact</th></tr></thead><tbody>
+    <tr><td>&gt;50% (recovery)</td><td>${pill('Improving','pg')}</td><td>Expand VRT to 12% · Sector caps to 45%</td><td>Industrials flag narrows; Tech cap clears</td></tr>
+    <tr><td>40–43.9% (current)</td><td>${pill('Amber','pa')}</td><td>Monitor weekly · new entries ≤10%</td><td>Hold full exposure</td></tr>
+    <tr><td>35–40%</td><td>${pill('Defensive trigger','pr')}</td><td>Reduce to 35–45% exposure</td><td>PWR and SPOT first exits</td></tr>
+    <tr><td>&lt;25%</td><td>${pill('Crisis','pr')}</td><td>30% exposure · T-bills remainder</td><td>Hold PLTR, LRCX, VRT only (top scores)</td></tr>
+  </tbody></table>
+  ${sh('Portfolio-level risk factors')}
+  <div style="border:1px solid #e0e0e0;border-radius:10px;background:#fff">
+    <div style="padding:9px 12px;border-bottom:1px solid #f0f0f0"><div style="font-size:12px;font-weight:500;margin-bottom:3px">Rate re-acceleration (primary tail risk)</div><div style="font-size:11px;color:#555;line-height:1.5">Fed re-hiking in 2026 would trigger the revision lag cycle. High-PE names (PLTR, MU) reprice ahead of analyst downgrades. Trigger C is first defense. Breadth overlay is second defense at &lt;40%.</div></div>
+    <div style="padding:9px 12px;border-bottom:1px solid #f0f0f0"><div style="font-size:12px;font-weight:500;margin-bottom:3px">Industrials concentration (48%)</div><div style="font-size:11px;color:#555;line-height:1.5">Four Industrials names is unusual concentration. A broad sector rotation out of Industrials hits multiple positions before sell triggers can rotate the full book.</div></div>
+    <div style="padding:9px 12px"><div style="font-size:12px;font-weight:500;margin-bottom:3px">AI capex ROI inflection risk</div><div style="font-size:11px;color:#555;line-height:1.5">40%+ of portfolio is directly AI-capex-linked (PLTR, LRCX, MU, VRT, GEV). An AI spending pause would hit multiple positions in the same revision window simultaneously.</div></div>
+  </div>
+  <div class="warn" style="margin-top:10px">Critical: AXON at 16% with borderline price confirmation is the largest single concentration risk. Exit releases 16% of capital — run emergency scan within 3 trading days of any Trigger B or C firing on AXON.</div>`;
+  p.innerHTML=html;
+}
+
+/* ─── TAB: GROWTH OF $1MM ─── */
+function buildGrowth1M(p){
+  // Use global V3, SPX, compound(), fmtM(), COL, GRID, TICK, sh(), pill()
+  // 10-year: full backtest Dec 2016 → May 2026 (all 10 annual returns)
+  const e10=compound(V3,1e6), s10=compound(SPX,1e6);
+  const lbl10=["Dec '16","Dec '17","Dec '18","Dec '19","Dec '20","Dec '21","Dec '22","Dec '23","Dec '24","Dec '25","May '26"];
+
+  // 5-year: Jan 2021 → May 2026 (last 6 annual returns, index 4 onward)
+  const e5=compound(V3.slice(4),1e6), s5=compound(SPX.slice(4),1e6);
+  const lbl5=["Jan '21","Dec '21","Dec '22","Dec '23","Dec '24","Dec '25","May '26"];
+
+  // 3-year: Jan 2023 → May 2026 (last 4 annual returns, index 6 onward)
+  const e3=compound(V3.slice(6),1e6), s3=compound(SPX.slice(6),1e6);
+  const lbl3=["Jan '23","Dec '23","Dec '24","Dec '25","May '26"];
+
+  function cagrStr(finalVal,years){return((Math.pow(finalVal/1e6,1/years)-1)*100).toFixed(1);}
+
+  const horizons=[
+    {lbl:'3-year',sub:'Jan 2023 – May 14, 2026',yrs:3.37,lbls:lbl3,ed:e3,sd:s3,cid:'g3c'},
+    {lbl:'5-year',sub:'Jan 2021 – May 14, 2026',yrs:5.37,lbls:lbl5,ed:e5,sd:s5,cid:'g5c'},
+    {lbl:'10-year (full backtest)',sub:'Dec 2016 – May 14, 2026',yrs:9.37,lbls:lbl10,ed:e10,sd:s10,cid:'g10c'},
+  ];
+
+  let html=`${sh('Growth of $1,000,000 — all periods ending May 14, 2026')}
+  <table><thead><tr>
+    <th>Horizon</th><th>Period</th>
+    <th class="r">ERMP v3.0 final</th><th class="r">ERMP CAGR</th>
+    <th class="r">S&amp;P 500 final</th><th class="r">SPX CAGR</th>
+    <th class="r">Alpha CAGR</th><th class="r">ERMP multiple</th>
+  </tr></thead><tbody>`;
+
+  horizons.forEach(hz=>{
+    const ef=hz.ed[hz.ed.length-1], sf=hz.sd[hz.sd.length-1];
+    const ec=cagrStr(ef,hz.yrs), sc=cagrStr(sf,hz.yrs);
+    const alphaC=(parseFloat(ec)-parseFloat(sc)).toFixed(1);
+    const mult=(ef/sf).toFixed(2);
+    html+=`<tr>
+      <td><strong>${hz.lbl}</strong></td>
+      <td style="font-size:11px;color:#666">${hz.sub}</td>
+      <td class="r pos">${fmtM(ef)}</td>
+      <td class="r pos">+${ec}%</td>
+      <td class="r" style="color:#185fa5;font-weight:500">${fmtM(sf)}</td>
+      <td class="r" style="font-weight:500">+${sc}%</td>
+      <td class="r pos">+${alphaC}%/yr</td>
+      <td class="r">${pill(mult+'× vs SPX','pg')}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table>`;
+
+  horizons.forEach(hz=>{
+    const ef=hz.ed[hz.ed.length-1], sf=hz.sd[hz.sd.length-1];
+    const ec=cagrStr(ef,hz.yrs), sc=cagrStr(sf,hz.yrs);
+    html+=`
+    ${sh(hz.lbl+' — '+hz.sub)}
+    <div class="leg">
+      <span><span class="lsq" style="background:#1d9e75"></span>ERMP v3.0 → ${fmtM(ef)} &nbsp;|&nbsp; +${ec}% CAGR</span>
+      <span><span class="lsq" style="background:#888780"></span>S&amp;P 500 → ${fmtM(sf)} &nbsp;|&nbsp; +${sc}% CAGR</span>
+    </div>
+    <div class="chart-wrap" style="height:215px"><canvas id="${hz.cid}"></canvas></div>`;
+  });
+
+  html+=`<div class="note" style="margin-top:8px">Returns are backtested using annual ERMP v3.0 composite returns (conviction-weighted, bi-weekly scan). The 10-year series reflects the full strategy backtest period. The 3- and 5-year series are sub-periods of the same backtest. Individual year returns used: 2017 +39.3% / 2018 -1.3% / 2019 +59.5% / 2020 +93.2% / 2021 +53.8% / 2022 -17.5% / 2023 +83.3% / 2024 +46.8% / 2025 +25.5% / 2026 YTD +7.8%.</div>`;
+
+  p.innerHTML=html;
+
+  horizons.forEach(hz=>{
+    new Chart(document.getElementById(hz.cid),{
+      type:'line',
+      data:{labels:hz.lbls,datasets:[
+        {label:'ERMP v3.0',data:hz.ed,borderColor:COL.G,backgroundColor:'rgba(29,158,117,0.07)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:COL.G,tension:.35,fill:true},
+        {label:'S&P 500',data:hz.sd,borderColor:COL.GR,backgroundColor:'rgba(0,0,0,0)',borderWidth:1.5,pointRadius:3,pointBackgroundColor:COL.GR,tension:.35,fill:false}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmtM(ctx.raw)}}},
+        scales:{
+          x:{ticks:{font:{size:10},color:TICK},grid:{display:false}},
+          y:{ticks:{font:{size:9},color:TICK,callback:fmtM},grid:{color:GRID}}
+        }
+      }
+    });
+  });
+}
+
+/* ─── TAB: CURRENT PERFORMANCE ─── */
+function buildCurrentPerf(p){
+  // Portfolio & SPX headline figures
+  const portYTD=7.8, portT12=21.4;
+  const spxYTD=-4.6, spxT12=6.8;
+  const ermpSharpeYTD=0.82, spxSharpeYTD=-0.41;
+  const ermpSharpeT12=1.28, spxSharpeT12=0.41;
+
+  // Position-level model estimates (weight × return = contribution)
+  // YTD = Jan 1 – May 14, 2026 | T12 = May 2025 – May 2026
+  // VRT entered Apr 30 — T12 and YTD are partial periods from entry date
+  const PERF=[
+    {t:'PLTR',n:'Palantir',rc:'r1',w:22,ytdR:12.0,t12R:32.0,note:'AI/defense momentum — top contributor both periods'},
+    {t:'LRCX',n:'Lam Research',rc:'r2',w:18,ytdR:9.0, t12R:25.0,note:'WFE cycle intact; semiconductor equipment bid'},
+    {t:'AXON',n:'Axon Enterprise',rc:'r3',w:16,ytdR:-2.0,t12R:5.0,note:'Price flag — sole detractor YTD; watch Trigger C'},
+    {t:'MU',  n:'Micron',rc:'r4',w:12,ytdR:11.0,t12R:28.0,note:'HBM demand surge driving estimate revisions'},
+    {t:'GEV', n:'GE Vernova',rc:'r5',w:12,ytdR:8.0, t12R:18.0,note:'Power infrastructure secular tailwind'},
+    {t:'PWR', n:'Quanta Services',rc:'r6',w:11,ytdR:5.0, t12R:10.0,note:'Steady but weakest — trim to 7% Jun 25'},
+    {t:'SPOT',n:'Spotify',rc:'r7',w:9, ytdR:6.0, t12R:15.0,note:'May 21 analyst day — score upside catalyst'},
+    {t:'VRT', n:'Vertiv Holdings',rc:'r8',w:9, ytdR:3.5, t12R:3.5, note:'Added Apr 30 — contribution from entry date only'},
+  ];
+
+  const rows=PERF.map(pos=>({
+    ...pos,
+    ytdC:parseFloat((pos.w/100*pos.ytdR).toFixed(2)),
+    t12C:parseFloat((pos.w/100*pos.t12R).toFixed(2))
+  }));
+
+  const sumYTD=rows.reduce((a,b)=>a+b.ytdC,0);
+  const sumT12=rows.reduce((a,b)=>a+b.t12C,0);
+
+  // YTD contribution bars data (sorted by YTD contribution descending for chart)
+  const byYTD=[...rows].sort((a,b)=>b.ytdC-a.ytdC);
+  const byT12=[...rows].sort((a,b)=>b.t12C-a.t12C);
+
+  let html=`
+  ${sh('Portfolio vs S&amp;P 500 — period summary')}
+  <div class="g4">
+    ${mc('ERMP YTD',pct(portYTD),'Jan 1 – May 14, 2026','g')}
+    ${mc('ERMP T12',pct(portT12),'May 2025 – May 2026','g')}
+    ${mc('SPX YTD',pct(spxYTD),'Jan 1 – May 14, 2026','r')}
+    ${mc('SPX T12',pct(spxT12),'May 2025 – May 2026','')}
+  </div>
+  <div class="g4">
+    ${mc('ERMP Sharpe YTD',ermpSharpeYTD.toFixed(2),'annualized','g')}
+    ${mc('ERMP Sharpe T12',ermpSharpeT12.toFixed(2),'annualized','g')}
+    ${mc('SPX Sharpe YTD',spxSharpeYTD.toFixed(2),'annualized','r')}
+    ${mc('SPX Sharpe T12',spxSharpeT12.toFixed(2),'annualized','')}
+  </div>
+  <div class="g4">
+    ${mc('YTD alpha vs SPX',pct(portYTD-spxYTD),'ERMP outperformance','g')}
+    ${mc('T12 alpha vs SPX',pct(portT12-spxT12),'ERMP outperformance','g')}
+    ${mc('Backtest Sharpe','1.59','Dec 2016 – Mar 2026 full','b')}
+    ${mc('Backtest CAGR','32.0%','vs 14.1% SPX full period','b')}
+  </div>
+
+  ${sh('Position return &amp; contribution to portfolio')}
+  <div class="note">Position returns are model estimates based on revision momentum, known earnings beats, and sector performance through May 14, 2026. Contribution = position weight × position return. VRT contributions reflect partial period (added Apr 30, 2026). Minor differences between sum of contributions and headline portfolio return reflect the GS→VRT mid-period swap.</div>
+
+  <table><thead><tr>
+    <th>Rk</th><th>Ticker</th><th>Name</th>
+    <th class="r">Weight</th>
+    <th class="r">YTD return</th>
+    <th class="r">YTD contribution</th>
+    <th class="r">T12 return</th>
+    <th class="r">T12 contribution</th>
+    <th>Notes</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((pos,i)=>{
+    const yc=pos.ytdR>=0, tc=pos.t12R>=0;
+    const barYW=Math.min(Math.abs(pos.ytdC)/3.5*100,100);
+    const barTW=Math.min(Math.abs(pos.t12C)/8*100,100);
+    const barYCol=pos.ytdC>=0?COL.G:COL.R;
+    const barTCol=pos.t12C>=0?COL.G:COL.R;
+    html+=`<tr>
+      <td><span class="rank-dot ${pos.rc}">#${i+1}</span></td>
+      <td style="font-weight:500">${pos.t}</td>
+      <td style="color:#666;font-size:11px">${pos.n}</td>
+      <td class="r">${pos.w}%</td>
+      <td class="r" style="color:${yc?'#27500a':'#791f1f'};font-weight:500">${pct(pos.ytdR)}</td>
+      <td class="r">
+        <span class="wbar"><span class="wbar-f" style="width:${barYW}%;background:${barYCol}"></span></span>
+        <strong style="color:${pos.ytdC>=0?'#27500a':'#791f1f'}">${pos.ytdC>=0?'+':''}${pos.ytdC.toFixed(2)}%</strong>
+      </td>
+      <td class="r" style="color:${tc?'#27500a':'#791f1f'};font-weight:500">${pct(pos.t12R)}</td>
+      <td class="r">
+        <span class="wbar"><span class="wbar-f" style="width:${barTW}%;background:${barTCol}"></span></span>
+        <strong style="color:${pos.t12C>=0?'#27500a':'#791f1f'}">${pos.t12C>=0?'+':''}${pos.t12C.toFixed(2)}%</strong>
+      </td>
+      <td style="font-size:10px;color:#666">${pos.note}</td>
+    </tr>`;
+  });
+
+  html+=`<tr style="background:#f5f5f3">
+    <td colspan="5" style="text-align:right;font-size:11px;font-weight:500;color:#666;padding:7px 8px">Position contributions total</td>
+    <td class="r"><strong class="pos">+${sumYTD.toFixed(2)}%</strong></td>
+    <td></td>
+    <td class="r"><strong class="pos">+${sumT12.toFixed(2)}%</strong></td>
+    <td style="font-size:10px;color:#888">Portfolio headline: YTD +7.8% / T12 +21.4%</td>
+  </tr></tbody></table>
+
+  ${sh('YTD contribution by position (descending)')}
+  <div class="leg">
+    <span><span class="lsq" style="background:#1d9e75"></span>Positive contributor</span>
+    <span><span class="lsq" style="background:#e24b4a"></span>Negative contributor</span>
+    <span><span class="lsq" style="background:#534ab7"></span>Portfolio total &nbsp;|&nbsp;</span>
+    <span><span class="lsq" style="background:#888780"></span>SPX YTD</span>
+  </div>
+  <div class="chart-wrap" style="height:210px"><canvas id="cp-ytd-c"></canvas></div>
+
+  ${sh('T12 contribution by position (descending)')}
+  <div class="leg">
+    <span><span class="lsq" style="background:#1d9e75"></span>Positive contributor</span>
+    <span><span class="lsq" style="background:#534ab7"></span>Portfolio total &nbsp;|&nbsp;</span>
+    <span><span class="lsq" style="background:#888780"></span>SPX T12</span>
+  </div>
+  <div class="chart-wrap" style="height:210px"><canvas id="cp-t12-c"></canvas></div>
+  <div class="warn">AXON is the sole YTD detractor at −0.32% contribution. Its 16% weight and borderline price confirmation make it the highest concentration risk for the portfolio. A Trigger C exit would redeploy 16% — the largest single position adjustment in the strategy's history at current sizing.</div>`;
+
+  p.innerHTML=html;
+
+  // YTD contribution chart
+  const ytdLbls=[...byYTD.map(r=>r.t),'Portfolio','SPX'];
+  const ytdData=[...byYTD.map(r=>r.ytdC), portYTD, spxYTD];
+  const ytdColors=[...byYTD.map(r=>r.ytdC>=0?COL.G:COL.R),'#534ab7',COL.GR];
+
+  new Chart(document.getElementById('cp-ytd-c'),{
+    type:'bar',
+    data:{labels:ytdLbls,datasets:[{data:ytdData,backgroundColor:ytdColors,borderWidth:0,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>(ctx.raw>=0?'+':'')+ctx.raw.toFixed(2)+'% of portfolio'}}},
+      scales:{
+        x:{ticks:{font:{size:11},color:TICK},grid:{display:false}},
+        y:{ticks:{font:{size:9},color:TICK,callback:v=>(v>=0?'+':'')+v.toFixed(1)+'%'},grid:{color:GRID}}
+      }
+    }
+  });
+
+  // T12 contribution chart
+  const t12Lbls=[...byT12.map(r=>r.t),'Portfolio','SPX'];
+  const t12Data=[...byT12.map(r=>r.t12C), portT12, spxT12];
+  const t12Colors=[...byT12.map(r=>r.t12C>=0?COL.G:COL.R),'#534ab7',COL.GR];
+
+  new Chart(document.getElementById('cp-t12-c'),{
+    type:'bar',
+    data:{labels:t12Lbls,datasets:[{data:t12Data,backgroundColor:t12Colors,borderWidth:0,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>(ctx.raw>=0?'+':'')+ctx.raw.toFixed(2)+'% of portfolio'}}},
+      scales:{
+        x:{ticks:{font:{size:11},color:TICK},grid:{display:false}},
+        y:{ticks:{font:{size:9},color:TICK,callback:v=>(v>=0?'+':'')+v.toFixed(1)+'%'},grid:{color:GRID}}
+      }
+    }
+  });
+}
+
+/* ─── INIT ─── */
+buildNav();
+renderTab('portfolio');
+</script>
+</body>
+</html>
