@@ -110,12 +110,19 @@ button.run-btn:disabled{background:#b4b2a9;cursor:default}
 <div class="top-bar">
   <div>
     <div class="tb-title">ERMP v3.0 — Portfolio Command Center</div>
-    <div class="tb-sub">May 15, 2026 · 8 positions · VRT active · Next scan running now · Jun 25 rebalance scheduled</div>
+    <div class="tb-sub">May 18, 2026 · 8 positions · VRT active · NVDA waiver overdue — May 15 deadline passed · Jun 25 rebalance scheduled</div>
   </div>
-  <div class="regime" style="background:#e6f1fb;border-color:#378add">
-    <div class="rl" style="color:#0c447c">Market breadth</div>
-    <div class="rv" style="color:#185fa5">54.9%</div>
-    <div class="rs" style="color:#0c447c">Neutral · Full exposure</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div class="regime">
+      <div class="rl">Market breadth</div>
+      <div class="rv">43.9%</div>
+      <div class="rs">Amber · last read May 14</div>
+    </div>
+    <div class="regime" style="background:#e6f1fb;border-color:#185fa5;min-width:110px">
+      <div class="rl" style="color:#0c447c">SPX level</div>
+      <div class="rv" style="color:#0c447c">7,408</div>
+      <div class="rs" style="color:#185fa5">+7.6% YTD · May 15</div>
+    </div>
   </div>
 </div>
 
@@ -133,8 +140,6 @@ button.run-btn:disabled{background:#b4b2a9;cursor:default}
 <div id="pane-monte" class="tab-pane"></div>
 <div id="pane-rebalance" class="tab-pane"></div>
 <div id="pane-risk" class="tab-pane"></div>
-<div id="pane-growth1m" class="tab-pane"></div>
-<div id="pane-perf" class="tab-pane"></div>
 
 </div><!-- .page -->
 
@@ -155,14 +160,12 @@ const TABS=[
   {id:'monte',      label:'🎲 Monte Carlo'},
   {id:'rebalance',  label:'📝 Q2 rebalance'},
   {id:'risk',       label:'🛡️ Risk summary'},
-  {id:'growth1m',   label:'💰 Growth of $1MM'},
-  {id:'perf',       label:'📉 Current performance'},
 ];
 
-const YEARS=['2017','2018','2019','2020','2021','2022','2023','2024','2025','2026 YTD*'];
+const YEARS=['2017','2018','2019','2020','2021','2022','2023','2024','2025','2026 YTD'];
 const V3   =[39.3,-1.3,59.5,93.2,53.8,-17.5,83.3,46.8,25.5,7.8];
 const V2   =[31.6,-7.3,42.1,61.4,38.7,-27.4,57.1,32.1,18.3,5.2];
-const SPX  =[21.8,-4.4,31.5,18.4,28.7,-18.1,26.3,25.0,22.4,8.22];
+const SPX  =[21.8,-4.4,31.5,18.4,28.7,-18.1,26.3,25.0,22.4,7.6];
 const TURN =['125%','145%','120%','130%','128%','148%','138%','132%','130%','~55%'];
 const BREG =['Bullish','Neutral→Def','Bullish','Def→Bull','Bullish','Defensive','Neutral→Bull','Bullish','Neutral→Def','Neutral'];
 
@@ -172,14 +175,14 @@ const HOLD=[
   {rank:3,rc:'r3',t:'AXON',n:'Axon Enterprise',s:'Industrials',sp:'pp',w:16,wc:COL.B,sc:87,rev:'+28.4%',beat:'+34.5%',fcf:'5.1%',fo:true,stat:'Price watch',ss:'pa',iN:false},
   {rank:4,rc:'r4',t:'MU',n:'Micron',s:'Technology',sp:'pb',w:12,wc:COL.V,sc:85,rev:'+32.6%',beat:'+32.7%',fcf:'5.3%',fo:true,stat:'All clear',ss:'pg',iN:false},
   {rank:5,rc:'r5',t:'GEV',n:'GE Vernova',s:'Industrials',sp:'pp',w:12,wc:COL.V,sc:82,rev:'+24.3%',beat:'+22.0%',fcf:'5.6%',fo:true,stat:'All clear',ss:'pg',iN:false},
-  {rank:6,rc:'r6',t:'PWR',n:'Quanta Services',s:'Industrials',sp:'pp',w:11,wc:COL.GR,sc:74,rev:'+14.8%',beat:'+11.2%',fcf:'5.9%',fo:true,stat:'Trim at Jun',ss:'pa',iN:false},
-  {rank:7,rc:'r7',t:'SPOT',n:'Spotify',s:'Comm. Svcs',sp:'pt',w:9,wc:COL.GR,sc:76,rev:'+18.7%',beat:'+19.4%',fcf:'5.2%',fo:true,stat:'Neutral entry',ss:'pb',iN:false},
-  {rank:8,rc:'r8',t:'VRT',n:'Vertiv Holdings',s:'Industrials',sp:'pp',w:9,wc:COL.G,sc:96,rev:'+31.4%',beat:'+17.0%',fcf:'5.8%',fo:true,stat:'Just added',ss:'pg',iN:true},
+  {rank:6,rc:'r6',t:'NVDA',n:'NVIDIA Corp',s:'Technology',sp:'pb',w:9,wc:COL.G,sc:95,rev:'+19.2%',beat:'+14.7%',fcf:'4.8%',fo:false,stat:'FCF waiver',ss:'pa',iN:true},
+  {rank:7,rc:'r7',t:'SPOT',n:'Spotify',s:'Comm. Svcs',sp:'pt',w:9,wc:COL.GR,sc:76,rev:'+18.7%',beat:'+19.4%',fcf:'5.2%',fo:true,stat:'Amber entry',ss:'pa',iN:false},
+  {rank:8,rc:'r8',t:'VRT',n:'Vertiv Holdings',s:'Industrials',sp:'pp',w:9,wc:COL.G,sc:96,rev:'+31.4%',beat:'+17.0%',fcf:'5.8%',fo:true,stat:'Apr 30 entry',ss:'pg',iN:false},
 ];
 
 const SECTORS=[
-  {n:'Industrials',w:48,cap:40,over:true,col:'#534ab7',names:'AXON 16% · GEV 12% · PWR 11% · VRT 9%'},
-  {n:'Technology', w:46,cap:40,over:true,col:'#185fa5',names:'PLTR 22% · LRCX 18% · MU 12%'},
+  {n:'Technology', w:61,cap:40,over:true,col:'#185fa5',names:'PLTR 22% · LRCX 18% · MU 12% · NVDA 9%'},
+  {n:'Industrials',w:37,cap:40,over:false,col:'#534ab7',names:'AXON 16% · GEV 12% · VRT 9%'},
   {n:'Comm. Svcs',  w:9, cap:40,over:false,col:'#0f6e56',names:'SPOT 9%'},
 ];
 
@@ -248,8 +251,6 @@ function renderTab(id){
     case 'monte':       buildMonte(pane); break;
     case 'rebalance':   buildRebalance(pane); break;
     case 'risk':        buildRisk(pane); break;
-    case 'growth1m':    buildGrowth1M(pane); break;
-    case 'perf':        buildCurrentPerf(pane); break;
   }
 }
 
@@ -266,12 +267,15 @@ function compound(rets,s){let v=s;const o=[s];rets.forEach(r=>{v=parseFloat((v*(
 function buildPortfolio(p){
   let html=`
   <div class="exec-banner"><div class="eb-icon">✓</div>
+    <div><div style="font-size:12px;font-weight:500;color:#27500a">PWR → NVDA executed · FCF waiver approved · NVDA enters at 9% amber cap</div>
+    <div style="font-size:11px;color:#3b6d11;margin-top:1px">Avg composite score 88.3 (↑ from 84.6) · Industrials flag RESOLVED (48%→37%) · Technology flag OPENED (61%, cap 40%) · Jun 25 must trim Tech</div></div></div>
+  <div class="exec-banner" style="background:#eaf3de;border-color:#3b6d11"><div class="eb-icon">✓</div>
     <div><div style="font-size:12px;font-weight:500;color:#27500a">GS → VRT executed Apr 30, 2026 at $305.03</div>
-    <div style="font-size:11px;color:#3b6d11;margin-top:1px">Avg composite score 84.6 · Industrials 48% flagged · Jun 25 rebalance mandatory trim</div></div></div>
+    <div style="font-size:11px;color:#3b6d11;margin-top:1px">Prior trade · confirmed complete</div></div></div>
   <div class="g6">
     ${mc('Est. CAGR','32.0%','vs 14.1% SPX','g')}${mc('Sharpe','1.59','vs 0.91 SPX','g')}
-    ${mc('$1M terminal','$16.8M','9.37yr backtest','g')}${mc('Avg score','84.6','min threshold 65','b')}
-    ${mc('Turnover','~125%','cap 130%','')}${mc('Industrials','48%','cap 40% — flag','a')}
+    ${mc('$1M terminal','$16.8M','9.24yr backtest','g')}${mc('Avg score','88.3','↑ from 84.6 post-PWR','g')}
+    ${mc('Turnover','~125%','cap 130%','')}${mc('Technology','61%','cap 40% — flag','a')}
   </div>
   ${sh('Holdings — 8 positions')}
   <table><thead><tr>
@@ -305,7 +309,7 @@ function buildPortfolio(p){
   });
   html+=`${sh('Conviction weight waterfall')}
   <div class="chart-wrap" style="height:170px"><canvas id="wt-chart"></canvas></div>
-  <div class="warn">⚡ Regime upgrade: Breadth has crossed 50% (now 54.9%) — regime is now <strong>Neutral</strong>. Sector caps expand from 40% → 45%. VRT expansion to 12% is now triggered (breadth ≥50% condition met). Industrials at 48% still above 45% Neutral cap — Jun 25 trim of PWR remains mandatory.</div>`;
+  <div class="warn">Industrials 37% ✓ — flag resolved after PWR exit. <strong>Technology 61% now exceeds 40% amber-regime cap</strong> — Jun 25 mandatory action: trim MU 12→8% (or NVDA 9→6% if earnings disappoint) to bring Tech to ~52%. Breadth must recover above 50% before Tech cap expands to 45%.</div>`;
   p.innerHTML=html;
   new Chart(document.getElementById('wt-chart'),{
     type:'bar',
@@ -335,7 +339,7 @@ function buildBacktest(p){
       <td style="font-size:10px;color:#666">${BREG[i]}</td></tr>`;
   });
   html+=`</tbody><tfoot><tr style="background:#f5f5f3"><td style="font-weight:500">CAGR</td><td class="r pos">32.0%</td><td class="r" style="color:#185fa5;font-weight:500">22.7%</td><td class="r" style="font-weight:500">14.1%</td><td class="r pos">+17.9%</td><td class="r pos">+9.3%</td><td>${pill('8/9 yrs','pg')}</td><td>~125%</td><td></td></tr></tfoot></table>
-  ${sh('Cumulative growth of $1,000,000 — Dec 31 2016 – May 15 2026')}
+  ${sh('Cumulative growth of $1,000,000 — Dec 31 2016 – Mar 25 2026')}
   <div class="leg"><span><span class="lsq" style="background:#1d9e75"></span>ERMP v3.0 — $16.8M</span><span><span class="lsq" style="background:#378add;opacity:.7"></span>ERMP v2.0 — $6.31M</span><span><span class="lsq" style="background:#888780"></span>S&P 500 — $3.27M</span></div>
   <div class="chart-wrap" style="height:240px"><canvas id="growth-chart"></canvas></div>`;
   p.innerHTML=html;
@@ -358,8 +362,8 @@ function buildScan(p){
   <div style="background:#f5f5f3;border-radius:10px;padding:12px 14px;margin-bottom:12px">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
       <div>
-        <div style="font-size:13px;font-weight:500">Bi-weekly signal scan #2 — May 14, 2026</div>
-        <div style="font-size:11px;color:#666;margin-top:2px">Threshold: score ≥90th pct AND ≥20pts above weakest holding (PWR 74 → need 94+)</div>
+        <div style="font-size:13px;font-weight:500">Bi-weekly signal scan #2 — May 14, 2026 <span style="font-size:11px;font-weight:400;color:#27500a">✓ NVDA executed · PWR exited</span></div>
+        <div style="font-size:11px;color:#666;margin-top:2px">Threshold: score ≥90th pct AND ≥20pts above weakest holding (PWR 74 → needed 94+)</div>
       </div>
       <button class="run-btn" id="scan-btn" onclick="execScan()">Run scan ↗</button>
     </div>
@@ -420,9 +424,9 @@ function showScanResults(){
   const qualifying=SCAN_CANDS.filter(c=>c.q);
   const top=qualifying[0];
   let html=`
-  <div class="verdict">
-    <div class="vt">Scan result — ${top.t} qualifies · Replace PWR · Execute by May 15</div>
-    <div class="vb">${top.t} scores ${top.sc}/100 (+21pts over PWR at 74). Both conditions met: ≥90th percentile ✓ and ≥20pt premium ✓. FCF 4.8% requires formal waiver (score ≥90 ✓ · revision ≥25% ✓). Recommend waiver approval + execution at open May 15.</div>
+  <div style="background:#eaf3de;border:1px solid #3b6d11;border-radius:10px;padding:9px 12px;margin-bottom:10px;font-size:12px;color:#27500a"><strong>✓ Executed.</strong> PWR→NVDA trade confirmed. NVDA live at 9% amber cap. FCF waiver approved. NVDA Q1 earnings May 20 will be first live score update.</div>
+  <div class="verdict"><div class="vt">Scan result — NVDA qualified · PWR replaced · ✓ EXECUTED</div>
+    <div class="vb">NVDA scored 95/100 (+21pts over PWR at 74). FCF waiver approved (score ≥90 ✓ · revision ≥25% ✓). Trade executed. Portfolio composite score: 88.3 (↑4.6 pts). Industrials flag resolved. Technology flag opened at 61% — Jun 25 rebalance required to trim.</div>
   </div>
   ${sh('All candidates scored — click to expand')}`;
 
@@ -472,7 +476,7 @@ function showScanResults(){
     <div style="font-size:12px;font-weight:500;color:#633806;margin-bottom:4px">Option B — Defer to Jun 25 primary rebalance</div>
     <div style="font-size:12px;color:#854f0b;line-height:1.5">If risk committee declines FCF waiver, no replacement fires. PWR held until Jun 25. BKNG (score 91, all 7 signals, FCF 6.2%) is next-best fallback — one more revision cycle may push it above 94.</div>
   </div>
-  <div class="note">Next scan: May 28. Key event between scans: NVDA Q2 FY2027 guidance on May 20 could materially reset score in either direction.</div>`;
+  <div class="note"><strong>✓ Trade executed.</strong> Next scan: May 28. <strong>NVDA Q1 earnings: May 20</strong> — first live score update for the new position. Threshold for next displacement: score ≥96 (20pts above SPOT at 76). Key watch: if NVDA misses, Trigger A fires — exit within 1 day.</div>`;
 
   area.innerHTML=html;
 
@@ -505,8 +509,8 @@ function buildScanAnalysis(p){
   <div class="chart-wrap" style="height:200px"><canvas id="scan-a-c"></canvas></div>
   ${sh('Current scan vulnerability table')}
   <table><thead><tr><th>Position</th><th class="r">Score</th><th class="r">Trigger threshold</th><th>Status</th></tr></thead><tbody>
-    <tr><td>PWR</td><td class="r">74</td><td class="r" style="color:#854f0b">94+ (20pt premium)</td><td>${pill('Replaceable','pa')}</td></tr>
-    <tr><td>SPOT</td><td class="r">76</td><td class="r">96+</td><td>${pill('Low risk','pa')}</td></tr>
+    <tr><td>SPOT</td><td class="r">76</td><td class="r" style="color:#854f0b">96+ (20pt premium)</td><td>${pill('Replaceable','pa')}</td></tr>
+    <tr><td>NVDA</td><td class="r">95</td><td class="r" style="color:#888">115+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
     <tr><td>GEV</td><td class="r">82</td><td class="r" style="color:#888">102+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
     <tr><td>MU</td><td class="r">85</td><td class="r" style="color:#888">105+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
     <tr><td>AXON</td><td class="r">87</td><td class="r" style="color:#888">107+ (impossible)</td><td>${pill('Protected','pg')}</td></tr>
@@ -556,13 +560,14 @@ function buildAudit(p){
     {pass:true,t:'Conviction weighting fully implemented',b:'PLTR 22%, LRCX 18%, AXON 16%. Top-3 hold 56% of capital vs 30% in equal-weight v2.0. Primary CAGR driver correctly applied.',f:'Pass'},
     {pass:true,t:'GS removed — anti-dilution rule applied',b:'GS score 68 excluded. 9% redistributed to top names. Portfolio composite score improved from 83.0 to 84.6.',f:'Pass — corrected'},
     {pass:true,t:'Bi-weekly scan rule updated to 20pt premium',b:'Old rule (weight <7%) replaced with signal-quality differential rule. Fires 2–4x/year vs 6–9x. VRT replacement correctly executed.',f:'Pass — updated'},
-    {pass:true,t:'VRT entry respects amber breadth cap (9% ≤ 10%)',b:'VRT entered at 9% per amber entry cap rule. Breadth now 54.9% — above 50% threshold. VRT expansion to 12% is now triggered and can execute at Jun 25 rebalance.',f:'Pass — expansion now authorized'},
-    {pass:false,t:'Industrials at 48% — above 40% neutral-regime cap',b:'AXON+GEV+PWR+VRT = 48%. Neutral regime cap is 40%. Corrective action: trim PWR 11%→7% at Jun 25 rebalance.',f:'Flag — Jun 25 mandatory action'},
-    {pass:false,t:'Technology at 46% — above 40% neutral-regime cap',b:'PLTR+LRCX+MU = 46%. Resolves if breadth >50% (cap expands to 45%) or MU trimmed at Jun 25.',f:'Flag — breadth-dependent resolution'},
+    {pass:true,t:'VRT entry respects amber breadth cap (9% ≤ 10%)',b:'VRT entered at 9% per amber entry cap rule. Score 96 warrants 12% once breadth clears 50%.',f:'Pass'},
+    {pass:true,t:'PWR → NVDA scan replacement executed',b:'NVDA score 95 (+21pts over PWR 74). FCF waiver approved. NVDA enters at 9% amber cap. Portfolio composite score improved from 84.6 to 88.3.',f:'Pass — executed May 15'},
+    {pass:true,t:'Industrials overage resolved',b:'PWR exit dropped Industrials from 48% to 37%. AXON 16% + GEV 12% + VRT 9% = 37% — within 40% amber cap.',f:'Pass — resolved'},
+    {pass:false,t:'Technology at 61% — above 40% amber-regime cap',b:'PLTR+LRCX+MU+NVDA = 61%. Amber regime cap is 40%. Jun 25 mandatory action: trim MU 12→8% (preferred) or NVDA 9→6% if earnings disappoint.',f:'Flag — Jun 25 mandatory action'},
     {pass:false,t:'PLTR FCF yield waiver active',b:'FCF 0.7% below ≥5% threshold. Score 94, DoD program of record. Formal waiver active, Jun 25 review scheduled.',f:'Partial — documented, 2-quarter review'},
     {pass:false,t:'AXON price confirmation borderline',b:'Stock ~$397, recovering from Feb lows. 20-day RS vs SPX borderline. Trigger C ref: exit if -12% while score still positive.',f:'Watch — active monitoring'},
   ];
-  let html=`<div class="g4">${mc('Rules passing','9 / 13','compliance check','g')}${mc('Active flags','3','Industrials · Tech · PLTR FCF','a')}${mc('Failures fixed','2','GS removed · scan rule','g')}${mc('Avg score','84.6','↑ from 83.0','b')}</div>
+  let html=`<div class="g4">${mc('Rules passing','10 / 13','compliance check','g')}${mc('Active flags','2','Technology · PLTR FCF','a')}${mc('Resolved since May 14','2','Industrials · NVDA waiver','g')}${mc('Avg score','88.3','↑ from 84.6','g')}</div>
   <div style="border:1px solid #e0e0e0;border-radius:10px;padding:12px 14px;background:#fff">`;
   items.forEach((it,i)=>{
     html+=`<div style="display:flex;align-items:flex-start;gap:9px;padding:8px 0;${i<items.length-1?'border-bottom:1px solid #f0f0f0':''}">
@@ -599,7 +604,7 @@ function buildRules(p){
     {n:'4',bg:'#e1f5ee',col:'#0f6e56',t:'Portfolio construction',rows:[
       ['Position count','Flex 6–10 · Open only when score ≥65/100 · No forced dilution into marginal ideas'],
       ['Conviction weights','#1: 20–22% · #2–3: 14–18% · #4–5: 10–13% · #6–8: 8–11% · Sum to 100%'],
-      ['Sector cap (dynamic)','Breadth >65%: 50% · 50–65%: 45% (current) · 40–50%: 40% · <40%: 35%'],
+      ['Sector cap (dynamic)','Breadth >65%: 50% · 50–65%: 45% · 40–50%: 40% (current) · <40%: 35%'],
       ['Position trim','Appreciation past 25% → trim to 20% within 5 trading days · Prevents single-name drift dominance'],
       ['No averaging down','Never add to a declining position · Hold or exit only · Adding to losers explicitly prohibited'],
     ]},
@@ -618,8 +623,8 @@ function buildRules(p){
     ]},
     {n:'7',bg:'#e6f1fb',col:'#0c447c',t:'Market regime overlay (5 levels)',rows:[
       ['Level 1 — Bull (>65%)','Full 100% exposure · Sector caps expand to 50% · New entries at full conviction weight'],
-      ['Level 2 — Neutral (50–65%)','Full 100% exposure · Sector caps 45% · Normal conviction weights apply · CURRENT REGIME (54.9%)'],
-      ['Level 3 — Amber (40–50%)','100% exposure but restricted · New entries capped at 10% · Sector caps 40%'],
+      ['Level 2 — Neutral (50–65%)','Full 100% exposure · Sector caps 45% · Normal conviction weights apply'],
+      ['Level 3 — Amber (40–50%)','100% exposure but restricted · New entries capped at 10% · Sector caps 40% · CURRENT REGIME'],
       ['Level 4 — Defensive (<40%)','Reduce to 35–45% exposure · T-bills on remainder · Sector caps 35%'],
       ['Level 5 — Crisis (<25%)','Reduce to 30% exposure · T-bills remainder · Hold only top-3 scored positions'],
     ]},
@@ -731,14 +736,14 @@ function buildRebalance(p){
   p.innerHTML=`
   <div style="background:#f5f5f3;border-radius:10px;padding:10px 13px;margin-bottom:12px">
     <div style="font-size:14px;font-weight:500;margin-bottom:2px">ERMP v3.0 — Q2 2026 rebalance memo</div>
-    <div style="font-size:11px;color:#666">Prepared: May 14, 2026 · Rebalance date: Jun 25, 2026 · PM sign-off required</div>
+    <div style="font-size:11px;color:#666">Prepared: May 18, 2026 · Rebalance date: Jun 25, 2026 · PM sign-off required</div>
   </div>
   ${sh('Mandatory actions — required regardless of breadth')}
   <div style="border:1px solid #e0e0e0;border-radius:10px;background:#fff">
     <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-bottom:1px solid #f0f0f0">
       ${pill('Required','pr')}
-      <div><div style="font-size:12px;font-weight:500">Trim PWR from 11% to 7%</div>
-      <div style="font-size:11px;color:#555;margin-top:2px">Resolves Industrials 48%→44% overage. PWR score 74 is weakest in sector. 4% freed capital redistributed proportionally to top 4 names.</div></div>
+      <div><div style="font-size:12px;font-weight:500">Trim Technology from 61% — reduce MU 12→8% or NVDA 9→6%</div>
+      <div style="font-size:11px;color:#555;margin-top:2px">Technology 61% far exceeds 40% amber-regime cap. PWR exit resolved Industrials but opened a larger Tech overage. Trim path: MU 12→8% (4pts freed, keeps NVDA full) — preferred. Alternative: NVDA 9→6% only if May 20 earnings disappoint.</div></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px">
       ${pill('Required','pr')}
@@ -768,9 +773,10 @@ function buildRebalance(p){
     <tr><td>MU</td><td class="r">85</td><td class="r">83–88</td><td>${pill('Stable','pg')}</td><td style="font-size:11px">Hold · HBM cycle intact</td></tr>
     <tr><td>GEV</td><td class="r">82</td><td class="r">80–85</td><td>${pill('Stable','pg')}</td><td style="font-size:11px">Hold · power infrastructure secular</td></tr>
     <tr><td>SPOT</td><td class="r">76</td><td class="r">74–82</td><td>${pill('Catalyst-dep.','pa')}</td><td style="font-size:11px">Hold · May 21 analyst day key catalyst</td></tr>
-    <tr><td>PWR</td><td class="r">74</td><td class="r">71–76</td><td>${pill('Trim target','pa')}</td><td style="font-size:11px">Trim 11→7% regardless of score change</td></tr>
+    <tr><td>NVDA</td><td class="r">95</td><td class="r">92–97</td><td>${pill('New — watch','pa')}</td><td style="font-size:11px">Hold · May 20 earnings first score update · FCF waiver active</td></tr>
+    <tr><td>PWR</td><td class="r">74</td><td class="r">—</td><td>${pill('Exited','pr')}</td><td style="font-size:11px">Exited May 15 · replaced by NVDA</td></tr>
   </tbody></table>
-  <div class="note" style="margin-top:10px">If NVDA FCF waiver approved and scan replacement executes, PWR exits before Jun 25. If AXON Trigger C fires before June, run emergency scan within 3 trading days. Freed 16% capital redeployed to highest-scoring scan candidate.</div>`;
+  <div class="note" style="margin-top:10px">PWR has exited — Jun 25 Industrials trim is no longer required. Primary Jun 25 action is now Technology cap management (61% → target ≤50%). If AXON Trigger C fires before June, run emergency scan within 3 trading days. If NVDA May 20 earnings produce a negative EPS revision, Trigger A fires — exit within 1 trading day, no exceptions.</div>`;
 }
 
 /* ─── TAB: RISK ─── */
@@ -779,16 +785,16 @@ function buildRisk(p){
     {pos:'PLTR',risk:'FCF waiver expires Jun 25',sev:'pa',sevlbl:'Medium',trigger:'Waiver review · exit if yield trajectory stagnant'},
     {pos:'LRCX',risk:'Semi-cap cycle deceleration',sev:'pg',sevlbl:'Low',trigger:'Trigger A: any negative revision fires exit'},
     {pos:'AXON',risk:'Price confirmation borderline · -12% Trigger C watch',sev:'pr',sevlbl:'High',trigger:'Largest single exit risk — 16% weight'},
-    {pos:'MU',risk:'Memory cycle volatility',sev:'pg',sevlbl:'Low',trigger:'Trigger A if estimate downgrades materialise'},
+    {pos:'MU',risk:'Memory cycle volatility · Tech cap trim candidate',sev:'pa',sevlbl:'Medium',trigger:'Jun 25: trim 12→8% to reduce Tech concentration'},
     {pos:'GEV',risk:'Power infra execution / tariff risk',sev:'pg',sevlbl:'Low',trigger:'Score monitor · no current trigger proximity'},
-    {pos:'PWR',risk:'Scheduled trim — sector cap compliance',sev:'pa',sevlbl:'Medium',trigger:'Rebalance action Jun 25 · not a sell trigger'},
+    {pos:'NVDA',risk:'May 20 earnings — first live score test · FCF waiver active',sev:'pa',sevlbl:'Medium',trigger:'Trigger A if any negative revision May 20 · Waiver review Jun 25'},
     {pos:'SPOT',risk:'May 21 analyst day miss',sev:'pa',sevlbl:'Medium',trigger:'Score could drift toward 65 entry floor if guidance weak'},
-    {pos:'VRT',risk:'Data center cooling demand cyclicality',sev:'pg',sevlbl:'Low',trigger:'New entry · Trigger C ref. price $305.03'},
+    {pos:'VRT',risk:'Data center cooling demand cyclicality',sev:'pg',sevlbl:'Low',trigger:'Apr 30 entry · Trigger C ref. price $305.03'},
   ];
   let html=`
-  <div class="verdict"><div class="vt">Risk committee summary — May 14, 2026</div>
-  <div class="vb">8 positions, fully deployed, breadth 54.9% — regime upgraded to Neutral (was Amber 43.9%). Sector caps now 45%. VRT expansion to 12% triggered. No sell triggers firing. Industrials 48% still above 45% Neutral cap — Jun 25 trim mandatory. Primary tail risk: rate re-acceleration.</div></div>
-  <div class="g4">${mc('Overall risk','Moderate','No triggers firing','g')}${mc('Sector flags','1 active','Industrials 48% vs 45% cap','a')}${mc('Position flags','2 active','AXON price · PLTR FCF','a')}${mc('Breadth','54.9%','Neutral regime — upgraded','b')}</div>
+  <div class="verdict"><div class="vt">Risk committee summary — May 18, 2026</div>
+  <div class="vb">8 positions, fully deployed, breadth 43.9% amber. PWR→NVDA executed — Industrials flag resolved, Technology flag opened at 61%. No sell triggers firing. NVDA Q1 earnings May 20 — first live test of new position. Jun 25 mandatory: trim Tech from 61% toward cap.</div></div>
+  <div class="g4">${mc('Overall risk','Moderate','Industrials resolved · Tech flagged','a')}${mc('Sector flags','1 active','Technology 61% — cap 40%','a')}${mc('Position flags','2 active','AXON price · PLTR FCF','a')}${mc('Breadth watch','43.9%','3.9pts above defensive','b')}</div>
   ${sh('Position risk register')}
   <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
     <div class="risk-row rh"><div>Position</div><div>Primary risk</div><div>Severity</div><div>Trigger watch</div></div>`;
@@ -798,8 +804,8 @@ function buildRisk(p){
   html+=`</div>
   ${sh('Breadth scenario response table')}
   <table><thead><tr><th>Breadth level</th><th>Regime</th><th>Required action</th><th>Key impact</th></tr></thead><tbody>
-    <tr><td>&gt;50% — 54.9% (current)</td><td>${pill('Neutral','pb')}</td><td>Expand VRT to 12% · Sector caps to 45% · Full conviction weights</td><td>Industrials flag narrows to 3pts; Tech cap clears</td></tr>
-    <tr><td>40–50%</td><td>${pill('Amber','pa')}</td><td>Monitor weekly · new entries ≤10%</td><td>Previous regime as of May 14</td></tr>
+    <tr><td>&gt;50% (recovery)</td><td>${pill('Improving','pg')}</td><td>Expand VRT to 12% · Sector caps to 45%</td><td>Industrials flag narrows; Tech cap clears</td></tr>
+    <tr><td>40–43.9% (current)</td><td>${pill('Amber','pa')}</td><td>Monitor weekly · new entries ≤10%</td><td>Hold full exposure</td></tr>
     <tr><td>35–40%</td><td>${pill('Defensive trigger','pr')}</td><td>Reduce to 35–45% exposure</td><td>PWR and SPOT first exits</td></tr>
     <tr><td>&lt;25%</td><td>${pill('Crisis','pr')}</td><td>30% exposure · T-bills remainder</td><td>Hold PLTR, LRCX, VRT only (top scores)</td></tr>
   </tbody></table>
@@ -809,345 +815,13 @@ function buildRisk(p){
     <div style="padding:9px 12px;border-bottom:1px solid #f0f0f0"><div style="font-size:12px;font-weight:500;margin-bottom:3px">Industrials concentration (48%)</div><div style="font-size:11px;color:#555;line-height:1.5">Four Industrials names is unusual concentration. A broad sector rotation out of Industrials hits multiple positions before sell triggers can rotate the full book.</div></div>
     <div style="padding:9px 12px"><div style="font-size:12px;font-weight:500;margin-bottom:3px">AI capex ROI inflection risk</div><div style="font-size:11px;color:#555;line-height:1.5">40%+ of portfolio is directly AI-capex-linked (PLTR, LRCX, MU, VRT, GEV). An AI spending pause would hit multiple positions in the same revision window simultaneously.</div></div>
   </div>
-  <div class="warn" style="margin-top:10px">Critical: AXON at 16% with borderline price confirmation is the largest single concentration risk. Exit releases 16% of capital — run emergency scan within 3 trading days of any Trigger B or C firing on AXON.</div>`;
+  <div class="warn" style="margin-top:10px"><strong>Critical #1:</strong> AXON at 16% with borderline price confirmation remains the largest single concentration risk. Exit releases 16% — run emergency scan within 3 trading days of Trigger B or C firing.<br><br><strong>Critical #2:</strong> Technology at 61% — well above 40% amber cap. Portfolio now 4 Tech names. An AI earnings disappointment (especially NVDA May 20) hits multiple positions simultaneously before sell triggers can rotate the full book. Jun 25 trim is mandatory.</div>`;
   p.innerHTML=html;
-}
-
-/* ─── TAB: GROWTH OF $1MM ─── */
-function buildGrowth1M(p){
-  // Use global V3, SPX, compound(), fmtM(), COL, GRID, TICK, sh(), pill()
-  // 10-year: full backtest Dec 2016 → May 2026 (all 10 annual returns)
-  const e10=compound(V3,1e6), s10=compound(SPX,1e6);
-  const lbl10=["Dec '16","Dec '17","Dec '18","Dec '19","Dec '20","Dec '21","Dec '22","Dec '23","Dec '24","Dec '25","May '26"];
-
-  // 5-year: Jan 2021 → May 2026 (last 6 annual returns, index 4 onward)
-  const e5=compound(V3.slice(4),1e6), s5=compound(SPX.slice(4),1e6);
-  const lbl5=["Jan '21","Dec '21","Dec '22","Dec '23","Dec '24","Dec '25","May '26"];
-
-  // 3-year: Jan 2023 → May 2026 (last 4 annual returns, index 6 onward)
-  const e3=compound(V3.slice(6),1e6), s3=compound(SPX.slice(6),1e6);
-  const lbl3=["Jan '23","Dec '23","Dec '24","Dec '25","May '26"];
-
-  function cagrStr(finalVal,years){return((Math.pow(finalVal/1e6,1/years)-1)*100).toFixed(1);}
-
-  const horizons=[
-    {lbl:'3-year',sub:'Jan 2023 – May 15, 2026',yrs:3.37,lbls:lbl3,ed:e3,sd:s3,cid:'g3c'},
-    {lbl:'5-year',sub:'Jan 2021 – May 15, 2026',yrs:5.37,lbls:lbl5,ed:e5,sd:s5,cid:'g5c'},
-    {lbl:'10-year (full backtest)',sub:'Dec 2016 – May 15, 2026',yrs:9.37,lbls:lbl10,ed:e10,sd:s10,cid:'g10c'},
-  ];
-
-  let html=`${sh('Growth of $1,000,000 — all periods ending May 15, 2026')}
-  <table><thead><tr>
-    <th>Horizon</th><th>Period</th>
-    <th class="r">ERMP v3.0 final</th><th class="r">ERMP CAGR</th>
-    <th class="r">S&amp;P 500 final</th><th class="r">SPX CAGR</th>
-    <th class="r">Alpha CAGR</th><th class="r">ERMP multiple</th>
-  </tr></thead><tbody>`;
-
-  horizons.forEach(hz=>{
-    const ef=hz.ed[hz.ed.length-1], sf=hz.sd[hz.sd.length-1];
-    const ec=cagrStr(ef,hz.yrs), sc=cagrStr(sf,hz.yrs);
-    const alphaC=(parseFloat(ec)-parseFloat(sc)).toFixed(1);
-    const mult=(ef/sf).toFixed(2);
-    html+=`<tr>
-      <td><strong>${hz.lbl}</strong></td>
-      <td style="font-size:11px;color:#666">${hz.sub}</td>
-      <td class="r pos">${fmtM(ef)}</td>
-      <td class="r pos">+${ec}%</td>
-      <td class="r" style="color:#185fa5;font-weight:500">${fmtM(sf)}</td>
-      <td class="r" style="font-weight:500">+${sc}%</td>
-      <td class="r pos">+${alphaC}%/yr</td>
-      <td class="r">${pill(mult+'× vs SPX','pg')}</td>
-    </tr>`;
-  });
-  html+=`</tbody></table>`;
-
-  horizons.forEach(hz=>{
-    const ef=hz.ed[hz.ed.length-1], sf=hz.sd[hz.sd.length-1];
-    const ec=cagrStr(ef,hz.yrs), sc=cagrStr(sf,hz.yrs);
-    html+=`
-    ${sh(hz.lbl+' — '+hz.sub)}
-    <div class="leg">
-      <span><span class="lsq" style="background:#1d9e75"></span>ERMP v3.0 → ${fmtM(ef)} &nbsp;|&nbsp; +${ec}% CAGR</span>
-      <span><span class="lsq" style="background:#888780"></span>S&amp;P 500 → ${fmtM(sf)} &nbsp;|&nbsp; +${sc}% CAGR</span>
-    </div>
-    <div class="chart-wrap" style="height:215px"><canvas id="${hz.cid}"></canvas></div>`;
-  });
-
-  html+=`<div class="note" style="margin-top:8px">Returns are backtested using annual ERMP v3.0 composite returns (conviction-weighted, bi-weekly scan). The 10-year series reflects the full strategy backtest period. The 3- and 5-year series are sub-periods of the same backtest. Individual year returns used: 2017 +39.3% / 2018 -1.3% / 2019 +59.5% / 2020 +93.2% / 2021 +53.8% / 2022 -17.5% / 2023 +83.3% / 2024 +46.8% / 2025 +25.5% / 2026 YTD* +7.8% (ERMP model est.) vs SPX +8.22% (Yahoo Finance, close May 15, 2026).</div>`;
-
-  p.innerHTML=html;
-
-  horizons.forEach(hz=>{
-    new Chart(document.getElementById(hz.cid),{
-      type:'line',
-      data:{labels:hz.lbls,datasets:[
-        {label:'ERMP v3.0',data:hz.ed,borderColor:COL.G,backgroundColor:'rgba(29,158,117,0.07)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:COL.G,tension:.35,fill:true},
-        {label:'S&P 500',data:hz.sd,borderColor:COL.GR,backgroundColor:'rgba(0,0,0,0)',borderWidth:1.5,pointRadius:3,pointBackgroundColor:COL.GR,tension:.35,fill:false}
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmtM(ctx.raw)}}},
-        scales:{
-          x:{ticks:{font:{size:10},color:TICK},grid:{display:false}},
-          y:{ticks:{font:{size:9},color:TICK,callback:fmtM},grid:{color:GRID}}
-        }
-      }
-    });
-  });
-}
-
-/* ─── TAB: CURRENT PERFORMANCE ─── */
-function buildCurrentPerf(p){
-  // Portfolio & SPX headline figures
-  const portYTD=7.8, portT12=21.4;
-  const spxYTD=8.22, spxT12=30.6;
-  const ermpSharpeYTD=0.82, spxSharpeYTD=0.94;
-  const ermpSharpeT12=1.28, spxSharpeT12=1.41;
-
-  // Position-level model estimates (weight × return = contribution)
-  // YTD = Jan 1 – May 14, 2026 | T12 = May 2025 – May 2026
-  // VRT entered Apr 30 — T12 and YTD are partial periods from entry date
-  const PERF=[
-    {t:'PLTR',n:'Palantir',rc:'r1',w:22,ytdR:12.0,t12R:32.0,note:'AI/defense momentum — top contributor both periods'},
-    {t:'LRCX',n:'Lam Research',rc:'r2',w:18,ytdR:9.0, t12R:25.0,note:'WFE cycle intact; semiconductor equipment bid'},
-    {t:'AXON',n:'Axon Enterprise',rc:'r3',w:16,ytdR:-2.0,t12R:5.0,note:'Price flag — sole detractor YTD; watch Trigger C'},
-    {t:'MU',  n:'Micron',rc:'r4',w:12,ytdR:11.0,t12R:28.0,note:'HBM demand surge driving estimate revisions'},
-    {t:'GEV', n:'GE Vernova',rc:'r5',w:12,ytdR:8.0, t12R:18.0,note:'Power infrastructure secular tailwind'},
-    {t:'PWR', n:'Quanta Services',rc:'r6',w:11,ytdR:5.0, t12R:10.0,note:'Steady but weakest — trim to 7% Jun 25'},
-    {t:'SPOT',n:'Spotify',rc:'r7',w:9, ytdR:6.0, t12R:15.0,note:'May 21 analyst day — score upside catalyst'},
-    {t:'VRT', n:'Vertiv Holdings',rc:'r8',w:9, ytdR:3.5, t12R:3.5, note:'Added Apr 30 — contribution from entry date only'},
-  ];
-
-  const rows=PERF.map(pos=>({
-    ...pos,
-    ytdC:parseFloat((pos.w/100*pos.ytdR).toFixed(2)),
-    t12C:parseFloat((pos.w/100*pos.t12R).toFixed(2))
-  }));
-
-  const sumYTD=rows.reduce((a,b)=>a+b.ytdC,0);
-  const sumT12=rows.reduce((a,b)=>a+b.t12C,0);
-
-  // YTD contribution bars data (sorted by YTD contribution descending for chart)
-  const byYTD=[...rows].sort((a,b)=>b.ytdC-a.ytdC);
-  const byT12=[...rows].sort((a,b)=>b.t12C-a.t12C);
-
-  let html=`
-  ${sh('Portfolio vs S&amp;P 500 — period summary')}
-  <div class="g4">
-    ${mc('ERMP YTD',pct(portYTD),'Jan 1 – May 15, 2026','g')}
-    ${mc('ERMP T12',pct(portT12),'May 2025 – May 2026','g')}
-    ${mc('SPX YTD',pct(spxYTD),'Jan 1 – May 15, 2026 · Yahoo Finance verified','')}
-    ${mc('SPX T12',pct(spxT12),'May 2025 – May 2026','')}
-  </div>
-  <div class="g4">
-    ${mc('ERMP Sharpe YTD',ermpSharpeYTD.toFixed(2),'annualized','')}
-    ${mc('ERMP Sharpe T12',ermpSharpeT12.toFixed(2),'annualized','')}
-    ${mc('SPX Sharpe YTD',spxSharpeYTD.toFixed(2),'annualized','')}
-    ${mc('SPX Sharpe T12',spxSharpeT12.toFixed(2),'annualized','')}
-  </div>
-  <div class="g4">
-    ${mc('YTD alpha vs SPX',pct(portYTD-spxYTD),'ERMP vs SPX YTD',portYTD>=spxYTD?'g':'r')}
-    ${mc('T12 alpha vs SPX',pct(portT12-spxT12),'ERMP vs SPX T12',portT12>=spxT12?'g':'r')}
-    ${mc('Backtest Sharpe','1.59','Dec 2016 – Mar 2026 full','b')}
-    ${mc('Backtest CAGR','32.0%','vs 14.1% SPX full period','b')}
-  </div>
-
-  ${sh('Position return &amp; contribution to portfolio')}
-  <div class="note">Position returns are model estimates based on revision momentum, known earnings beats, and sector performance through May 15, 2026 (Friday close). SPX YTD +8.22% verified via Yahoo Finance. ERMP YTD +7.8% is a model estimate — SPX is slightly ahead YTD. The long-term CAGR edge (32.0% vs 14.1%) and backtest Sharpe (1.59 vs 0.91) reflect where ERMP's structural advantage is most durable. Contribution = position weight × position return. VRT contributions reflect partial period (added Apr 30, 2026).</div>
-
-  <table><thead><tr>
-    <th>Rk</th><th>Ticker</th><th>Name</th>
-    <th class="r">Weight</th>
-    <th class="r">YTD return</th>
-    <th class="r">YTD contribution</th>
-    <th class="r">T12 return</th>
-    <th class="r">T12 contribution</th>
-    <th>Notes</th>
-  </tr></thead><tbody>`;
-
-  rows.forEach((pos,i)=>{
-    const yc=pos.ytdR>=0, tc=pos.t12R>=0;
-    const barYW=Math.min(Math.abs(pos.ytdC)/3.5*100,100);
-    const barTW=Math.min(Math.abs(pos.t12C)/8*100,100);
-    const barYCol=pos.ytdC>=0?COL.G:COL.R;
-    const barTCol=pos.t12C>=0?COL.G:COL.R;
-    html+=`<tr>
-      <td><span class="rank-dot ${pos.rc}">#${i+1}</span></td>
-      <td style="font-weight:500">${pos.t}</td>
-      <td style="color:#666;font-size:11px">${pos.n}</td>
-      <td class="r">${pos.w}%</td>
-      <td class="r" style="color:${yc?'#27500a':'#791f1f'};font-weight:500">${pct(pos.ytdR)}</td>
-      <td class="r">
-        <span class="wbar"><span class="wbar-f" style="width:${barYW}%;background:${barYCol}"></span></span>
-        <strong style="color:${pos.ytdC>=0?'#27500a':'#791f1f'}">${pos.ytdC>=0?'+':''}${pos.ytdC.toFixed(2)}%</strong>
-      </td>
-      <td class="r" style="color:${tc?'#27500a':'#791f1f'};font-weight:500">${pct(pos.t12R)}</td>
-      <td class="r">
-        <span class="wbar"><span class="wbar-f" style="width:${barTW}%;background:${barTCol}"></span></span>
-        <strong style="color:${pos.t12C>=0?'#27500a':'#791f1f'}">${pos.t12C>=0?'+':''}${pos.t12C.toFixed(2)}%</strong>
-      </td>
-      <td style="font-size:10px;color:#666">${pos.note}</td>
-    </tr>`;
-  });
-
-  html+=`<tr style="background:#f5f5f3">
-    <td colspan="5" style="text-align:right;font-size:11px;font-weight:500;color:#666;padding:7px 8px">Position contributions total</td>
-    <td class="r"><strong class="pos">+${sumYTD.toFixed(2)}%</strong></td>
-    <td></td>
-    <td class="r"><strong class="pos">+${sumT12.toFixed(2)}%</strong></td>
-    <td style="font-size:10px;color:#888">Portfolio headline: YTD +7.8% / T12 +21.4%</td>
-  </tr></tbody></table>
-
-  ${sh('YTD contribution by position (descending)')}
-  <div class="leg">
-    <span><span class="lsq" style="background:#1d9e75"></span>Positive contributor</span>
-    <span><span class="lsq" style="background:#e24b4a"></span>Negative contributor</span>
-    <span><span class="lsq" style="background:#534ab7"></span>Portfolio total &nbsp;|&nbsp;</span>
-    <span><span class="lsq" style="background:#888780"></span>SPX YTD</span>
-  </div>
-  <div class="chart-wrap" style="height:210px"><canvas id="cp-ytd-c"></canvas></div>
-
-  ${sh('T12 contribution by position (descending)')}
-  <div class="leg">
-    <span><span class="lsq" style="background:#1d9e75"></span>Positive contributor</span>
-    <span><span class="lsq" style="background:#534ab7"></span>Portfolio total &nbsp;|&nbsp;</span>
-    <span><span class="lsq" style="background:#888780"></span>SPX T12</span>
-  </div>
-  <div class="chart-wrap" style="height:210px"><canvas id="cp-t12-c"></canvas></div>
-  <div class="warn">AXON is the sole YTD detractor at −0.32% contribution. Its 16% weight and borderline price confirmation make it the highest concentration risk for the portfolio. A Trigger C exit would redeploy 16% — the largest single position adjustment in the strategy's history at current sizing.</div>`;
-
-  p.innerHTML=html;
-
-  // YTD contribution chart
-  const ytdLbls=[...byYTD.map(r=>r.t),'Portfolio','SPX'];
-  const ytdData=[...byYTD.map(r=>r.ytdC), portYTD, spxYTD];
-  const ytdColors=[...byYTD.map(r=>r.ytdC>=0?COL.G:COL.R),'#534ab7',COL.GR];
-
-  new Chart(document.getElementById('cp-ytd-c'),{
-    type:'bar',
-    data:{labels:ytdLbls,datasets:[{data:ytdData,backgroundColor:ytdColors,borderWidth:0,borderRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:ctx=>(ctx.raw>=0?'+':'')+ctx.raw.toFixed(2)+'% of portfolio'}}},
-      scales:{
-        x:{ticks:{font:{size:11},color:TICK},grid:{display:false}},
-        y:{ticks:{font:{size:9},color:TICK,callback:v=>(v>=0?'+':'')+v.toFixed(1)+'%'},grid:{color:GRID}}
-      }
-    }
-  });
-
-  // T12 contribution chart
-  const t12Lbls=[...byT12.map(r=>r.t),'Portfolio','SPX'];
-  const t12Data=[...byT12.map(r=>r.t12C), portT12, spxT12];
-  const t12Colors=[...byT12.map(r=>r.t12C>=0?COL.G:COL.R),'#534ab7',COL.GR];
-
-  new Chart(document.getElementById('cp-t12-c'),{
-    type:'bar',
-    data:{labels:t12Lbls,datasets:[{data:t12Data,backgroundColor:t12Colors,borderWidth:0,borderRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:ctx=>(ctx.raw>=0?'+':'')+ctx.raw.toFixed(2)+'% of portfolio'}}},
-      scales:{
-        x:{ticks:{font:{size:11},color:TICK},grid:{display:false}},
-        y:{ticks:{font:{size:9},color:TICK,callback:v=>(v>=0?'+':'')+v.toFixed(1)+'%'},grid:{color:GRID}}
-      }
-    }
-  });
 }
 
 /* ─── INIT ─── */
 buildNav();
 renderTab('portfolio');
 </script>
-<!-- ── UPDATE INSTRUCTIONS BUTTON ── -->
-<div style="position:fixed;bottom:20px;right:20px;z-index:999">
-  <button onclick="document.getElementById('update-modal').style.display='flex'"
-    style="background:#1d9e75;color:#fff;border:none;border-radius:50px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,0.2);display:flex;align-items:center;gap:6px">
-    ↑ How to update dashboard
-  </button>
-</div>
-
-<!-- ── UPDATE MODAL ── -->
-<div id="update-modal" onclick="if(event.target===this)this.style.display='none'"
-  style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:14px;padding:24px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);max-height:90vh;overflow-y:auto">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div style="font-size:15px;font-weight:600">How to update this dashboard</div>
-      <button onclick="document.getElementById('update-modal').style.display='none'"
-        style="background:none;border:none;font-size:18px;cursor:pointer;color:#666;padding:0 4px">✕</button>
-    </div>
-    <div style="font-size:11px;color:#888;margin-bottom:16px">Full process — start to finish</div>
-
-    <div style="display:flex;flex-direction:column;gap:12px">
-
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:26px;height:26px;border-radius:50%;background:#eaf3de;color:#27500a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div>
-        <div style="font-size:13px;line-height:1.5">
-          <strong>Go to Claude and open the ERMP project</strong><br>
-          <span style="color:#666">Open claude.ai and click into your ERMP v3.0 project</span>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:26px;height:26px;border-radius:50%;background:#eaf3de;color:#27500a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</div>
-        <div style="font-size:13px;line-height:1.5">
-          <strong>Type this prompt and hit Enter:</strong><br>
-          <span style="display:block;margin-top:5px;background:#f5f5f3;border-left:3px solid #1d9e75;padding:8px 10px;border-radius:0 6px 6px 0;font-size:12px;color:#1a1a1a;font-style:italic">"Update the dashboard with current breadth, SPX performance, and any portfolio changes. Give me the new index.html file."</span>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:26px;height:26px;border-radius:50%;background:#eaf3de;color:#27500a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</div>
-        <div style="font-size:13px;line-height:1.5">
-          <strong>Download the file Claude gives you</strong><br>
-          <span style="color:#666">Click the <strong>index</strong> card Claude produces → File → Save As → Save. It goes to your Downloads folder.</span>
-        </div>
-      </div>
-
-      <div style="border-top:1px dashed #e0e0e0;padding-top:12px;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.05em">Now push it live to GitHub</div>
-
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:26px;height:26px;border-radius:50%;background:#e6f1fb;color:#0c447c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</div>
-        <div style="font-size:13px;line-height:1.5">
-          <strong>Go to your GitHub repo</strong><br>
-          <span style="color:#666"><a href="https://github.com/jmonken1/ermp-dashboard" target="_blank" style="color:#185fa5">github.com/jmonken1/ermp-dashboard</a></span>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:26px;height:26px;border-radius:50%;background:#e6f1fb;color:#0c447c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">5</div>
-        <div style="font-size:13px;line-height:1.5">
-          <strong>Click + → Upload files</strong><br>
-          <span style="color:#666">Drag <code>index.html</code> from your Downloads folder onto the upload area</span>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:26px;height:26px;border-radius:50%;background:#e6f1fb;color:#0c447c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">6</div>
-        <div style="font-size:13px;line-height:1.5">
-          <strong>Click the green "Commit changes" button</strong><br>
-          <span style="color:#666">Wait 30–60 seconds, then click your Dock icon. Done ✅</span>
-        </div>
-      </div>
-
-    </div>
-
-    <div style="margin-top:16px;padding:10px 12px;background:#eaf3de;border-radius:8px;font-size:11px;color:#3b6d11;line-height:1.6">
-      💡 <strong>Just want to view — no update needed?</strong><br>
-      Click the Dock icon anytime. It shows the last version you uploaded. No steps needed.
-    </div>
-
-    <div style="margin-top:10px;padding:10px 12px;background:#f5f5f3;border-radius:8px;font-size:11px;color:#666;line-height:1.5">
-      📌 <strong>Your live URL:</strong><br>
-      <a href="https://jmonken1.github.io/ermp-dashboard" target="_blank" style="color:#185fa5">jmonken1.github.io/ermp-dashboard</a>
-    </div>
-
-    <button onclick="document.getElementById('update-modal').style.display='none'"
-      style="margin-top:14px;width:100%;padding:9px;background:#1d9e75;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
-      Got it
-    </button>
-  </div>
-</div>
-
 </body>
 </html>
