@@ -945,7 +945,46 @@ function buildInstructions(p){
     <div class="rr"><div class="rrk">Flex position count</div><div class="rrv">6–10 positions · No forced dilution into marginal ideas · T-bills on remainder if &lt;6 qualify</div></div>
   </div>
 
-  ${sh('How to use this dashboard with Claude')}
+  ${sh('How to update this dashboard — 6 steps')}
+  <div style="border:1px solid #1d9e75;border-radius:10px;overflow:hidden;margin-bottom:10px">
+
+    <div style="display:flex;gap:11px;align-items:flex-start;padding:10px 13px;border-bottom:1px solid #e8f5ee;background:#f5fdf9">
+      <div style="width:24px;height:24px;border-radius:50%;background:#1d9e75;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div>
+      <div><div style="font-size:12px;font-weight:600">Go to Claude and open the ERMP v3.0 project</div><div style="font-size:11px;color:#555;margin-top:1px">Open claude.ai → click into your ERMP v3.0 project (not a regular chat)</div></div>
+    </div>
+
+    <div style="display:flex;gap:11px;align-items:flex-start;padding:10px 13px;border-bottom:1px solid #e8f5ee">
+      <div style="width:24px;height:24px;border-radius:50%;background:#1d9e75;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</div>
+      <div><div style="font-size:12px;font-weight:600">Type this exact prompt and hit Enter</div>
+      <div style="margin-top:5px;background:#f0faf5;border-left:3px solid #1d9e75;padding:7px 10px;border-radius:0 6px 6px 0;font-size:12px;color:#1a1a1a;font-style:italic">"Update the dashboard with current breadth, SPX performance, and any portfolio changes. Give me the new index.html file"</div></div>
+    </div>
+
+    <div style="display:flex;gap:11px;align-items:flex-start;padding:10px 13px;border-bottom:1px solid #e8f5ee">
+      <div style="width:24px;height:24px;border-radius:50%;background:#1d9e75;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</div>
+      <div><div style="font-size:12px;font-weight:600">Download the file Claude gives you</div><div style="font-size:11px;color:#555;margin-top:1px">Click the file attachment Claude returns → save as <code>index.html</code> to your Downloads folder</div></div>
+    </div>
+
+    <div style="display:flex;gap:11px;align-items:flex-start;padding:10px 13px;border-bottom:1px solid #e8f5ee">
+      <div style="width:24px;height:24px;border-radius:50%;background:#378add;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</div>
+      <div><div style="font-size:12px;font-weight:600">Go to your GitHub repo</div><div style="font-size:11px;color:#555;margin-top:1px"><a href="https://github.com/jmonken1/ermp-dashboard" target="_blank" style="color:#185fa5">github.com/jmonken1/ermp-dashboard</a></div></div>
+    </div>
+
+    <div style="display:flex;gap:11px;align-items:flex-start;padding:10px 13px;border-bottom:1px solid #e8f5ee">
+      <div style="width:24px;height:24px;border-radius:50%;background:#378add;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">5</div>
+      <div><div style="font-size:12px;font-weight:600">Click "+" → Upload files</div><div style="font-size:11px;color:#555;margin-top:1px">Drag <code>index.html</code> from your Downloads folder onto the upload area</div></div>
+    </div>
+
+    <div style="display:flex;gap:11px;align-items:flex-start;padding:10px 13px">
+      <div style="width:24px;height:24px;border-radius:50%;background:#378add;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">6</div>
+      <div><div style="font-size:12px;font-weight:600">Click "Commit changes" → done ✅</div><div style="font-size:11px;color:#555;margin-top:1px">Wait 30–60 seconds, then refresh. Your live dashboard is updated.</div></div>
+    </div>
+
+  </div>
+  <div style="background:#e6f1fb;border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:12px">
+    📌 <strong>Your live URL:</strong> <a href="https://jmonken1.github.io/ermp-dashboard" target="_blank" style="color:#185fa5">jmonken1.github.io/ermp-dashboard</a> — your Dock icon already points here, no updates needed to it ever.
+  </div>
+
+  ${sh('Other Claude commands')}
   <div class="rg">
     <div class="rr"><div class="rrk">Run a scan</div><div class="rrv">"Run the May 28 bi-weekly scan"</div></div>
     <div class="rr"><div class="rrk">Execute a trade</div><div class="rrv">"NVDA beat — confirm hold" · "AXON triggered Trigger C today"</div></div>
