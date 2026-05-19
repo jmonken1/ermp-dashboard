@@ -102,6 +102,13 @@ tr.nr td{background:#eaf3de}
 button.run-btn{padding:6px 14px;font-size:12px;background:#1d9e75;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:500}
 button.run-btn:hover{background:#0f6e56}
 button.run-btn:disabled{background:#b4b2a9;cursor:default}
+.perf-bar{display:flex;flex-wrap:wrap;gap:0;margin-bottom:10px;border:1px solid #e0e0e0;border-radius:9px;overflow:hidden;background:#fff}
+.pb-item{flex:1;min-width:100px;padding:7px 12px;border-right:1px solid #f0f0f0}
+.pb-item:last-child{border-right:none}
+.pb-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:2px}
+.pb-val{font-size:15px;font-weight:500}
+.pb-sub{font-size:10px;color:#888;margin-top:1px}
+.pb-g{color:#1d9e75}.pb-b{color:#185fa5}.pb-a{color:#854f0b}
 </style>
 </head>
 <body>
@@ -113,10 +120,10 @@ button.run-btn:disabled{background:#b4b2a9;cursor:default}
     <div class="tb-sub">May 18, 2026 · 8 positions · VRT active · NVDA waiver overdue — May 15 deadline passed · Jun 25 rebalance scheduled</div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <div class="regime">
-      <div class="rl">Market breadth</div>
-      <div class="rv">43.9%</div>
-      <div class="rs">Amber · last read May 14</div>
+    <div class="regime" style="background:#eaf3de;border-color:#1d9e75">
+      <div class="rl" style="color:#27500a">Market breadth</div>
+      <div class="rv" style="color:#1d9e75">53.9%</div>
+      <div class="rs" style="color:#3b6d11">Neutral · regime upgrade ↑</div>
     </div>
     <div class="regime" style="background:#e6f1fb;border-color:#185fa5;min-width:110px">
       <div class="rl" style="color:#0c447c">SPX level</div>
@@ -126,6 +133,7 @@ button.run-btn:disabled{background:#b4b2a9;cursor:default}
   </div>
 </div>
 
+<div class="perf-bar" id="perf-bar"></div>
 <div class="nav" id="nav"></div>
 
 <!-- PANES -->
@@ -140,6 +148,7 @@ button.run-btn:disabled{background:#b4b2a9;cursor:default}
 <div id="pane-monte" class="tab-pane"></div>
 <div id="pane-rebalance" class="tab-pane"></div>
 <div id="pane-risk" class="tab-pane"></div>
+<div id="pane-instructions" class="tab-pane"></div>
 
 </div><!-- .page -->
 
@@ -160,6 +169,7 @@ const TABS=[
   {id:'monte',      label:'🎲 Monte Carlo'},
   {id:'rebalance',  label:'📝 Q2 rebalance'},
   {id:'risk',       label:'🛡️ Risk summary'},
+  {id:'instructions', label:'📖 Instructions'},
 ];
 
 const YEARS=['2017','2018','2019','2020','2021','2022','2023','2024','2025','2026 YTD'];
@@ -176,7 +186,7 @@ const HOLD=[
   {rank:4,rc:'r4',t:'MU',n:'Micron',s:'Technology',sp:'pb',w:12,wc:COL.V,sc:85,rev:'+32.6%',beat:'+32.7%',fcf:'5.3%',fo:true,stat:'All clear',ss:'pg',iN:false},
   {rank:5,rc:'r5',t:'GEV',n:'GE Vernova',s:'Industrials',sp:'pp',w:12,wc:COL.V,sc:82,rev:'+24.3%',beat:'+22.0%',fcf:'5.6%',fo:true,stat:'All clear',ss:'pg',iN:false},
   {rank:6,rc:'r6',t:'NVDA',n:'NVIDIA Corp',s:'Technology',sp:'pb',w:9,wc:COL.G,sc:95,rev:'+19.2%',beat:'+14.7%',fcf:'4.8%',fo:false,stat:'FCF waiver',ss:'pa',iN:true},
-  {rank:7,rc:'r7',t:'SPOT',n:'Spotify',s:'Comm. Svcs',sp:'pt',w:9,wc:COL.GR,sc:76,rev:'+18.7%',beat:'+19.4%',fcf:'5.2%',fo:true,stat:'Amber entry',ss:'pa',iN:false},
+  {rank:7,rc:'r7',t:'SPOT',n:'Spotify',s:'Comm. Svcs',sp:'pt',w:9,wc:COL.GR,sc:76,rev:'+18.7%',beat:'+19.4%',fcf:'5.2%',fo:true,stat:'Neutral regime',ss:'pg',iN:false},
   {rank:8,rc:'r8',t:'VRT',n:'Vertiv Holdings',s:'Industrials',sp:'pp',w:9,wc:COL.G,sc:96,rev:'+31.4%',beat:'+17.0%',fcf:'5.8%',fo:true,stat:'Apr 30 entry',ss:'pg',iN:false},
 ];
 
@@ -251,6 +261,7 @@ function renderTab(id){
     case 'monte':       buildMonte(pane); break;
     case 'rebalance':   buildRebalance(pane); break;
     case 'risk':        buildRisk(pane); break;
+    case 'instructions': buildInstructions(pane); break;
   }
 }
 
@@ -266,6 +277,7 @@ function compound(rets,s){let v=s;const o=[s];rets.forEach(r=>{v=parseFloat((v*(
 /* ─── TAB: PORTFOLIO ─── */
 function buildPortfolio(p){
   let html=`
+  <div style="background:#eaf3de;border:1px solid #1d9e75;border-radius:10px;padding:10px 13px;margin-bottom:12px;display:flex;align-items:flex-start;gap:9px"><div style="width:26px;height:26px;border-radius:50%;background:#1d9e75;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0">↑</div><div><div style="font-size:12px;font-weight:500;color:#27500a">REGIME UPGRADE — Amber → Neutral · Breadth 53.9% (S5TH) · May 18, 2026</div><div style="font-size:11px;color:#3b6d11;margin-top:1px">Sector caps expand 40%→45% · New entries at full conviction · VRT expansion to 12% authorized · Tech cap eases to 45% (still 61% — trim still required at Jun 25)</div></div></div>
   <div class="exec-banner"><div class="eb-icon">✓</div>
     <div><div style="font-size:12px;font-weight:500;color:#27500a">PWR → NVDA executed · FCF waiver approved · NVDA enters at 9% amber cap</div>
     <div style="font-size:11px;color:#3b6d11;margin-top:1px">Avg composite score 88.3 (↑ from 84.6) · Industrials flag RESOLVED (48%→37%) · Technology flag OPENED (61%, cap 40%) · Jun 25 must trim Tech</div></div></div>
@@ -563,7 +575,7 @@ function buildAudit(p){
     {pass:true,t:'VRT entry respects amber breadth cap (9% ≤ 10%)',b:'VRT entered at 9% per amber entry cap rule. Score 96 warrants 12% once breadth clears 50%.',f:'Pass'},
     {pass:true,t:'PWR → NVDA scan replacement executed',b:'NVDA score 95 (+21pts over PWR 74). FCF waiver approved. NVDA enters at 9% amber cap. Portfolio composite score improved from 84.6 to 88.3.',f:'Pass — executed May 15'},
     {pass:true,t:'Industrials overage resolved',b:'PWR exit dropped Industrials from 48% to 37%. AXON 16% + GEV 12% + VRT 9% = 37% — within 40% amber cap.',f:'Pass — resolved'},
-    {pass:false,t:'Technology at 61% — above 40% amber-regime cap',b:'PLTR+LRCX+MU+NVDA = 61%. Amber regime cap is 40%. Jun 25 mandatory action: trim MU 12→8% (preferred) or NVDA 9→6% if earnings disappoint.',f:'Flag — Jun 25 mandatory action'},
+    {pass:false,t:'Technology at 61% — above 40% amber-regime cap',b:'PLTR+LRCX+MU+NVDA = 61%. Neutral regime cap is 45%. Tech still 61% — Jun 25 action: trim MU 12→8% (preferred) or NVDA 9→6% if earnings disappoint.',f:'Flag — Tech 61% still above 45% Neutral cap · Jun 25 mandatory'},
     {pass:false,t:'PLTR FCF yield waiver active',b:'FCF 0.7% below ≥5% threshold. Score 94, DoD program of record. Formal waiver active, Jun 25 review scheduled.',f:'Partial — documented, 2-quarter review'},
     {pass:false,t:'AXON price confirmation borderline',b:'Stock ~$397, recovering from Feb lows. 20-day RS vs SPX borderline. Trigger C ref: exit if -12% while score still positive.',f:'Watch — active monitoring'},
   ];
@@ -624,7 +636,7 @@ function buildRules(p){
     {n:'7',bg:'#e6f1fb',col:'#0c447c',t:'Market regime overlay (5 levels)',rows:[
       ['Level 1 — Bull (>65%)','Full 100% exposure · Sector caps expand to 50% · New entries at full conviction weight'],
       ['Level 2 — Neutral (50–65%)','Full 100% exposure · Sector caps 45% · Normal conviction weights apply'],
-      ['Level 3 — Amber (40–50%)','100% exposure but restricted · New entries capped at 10% · Sector caps 40% · CURRENT REGIME'],
+      ['Level 2 — Neutral (50–65%)','100% exposure · Sector caps 45% · Full conviction entries · CURRENT REGIME — upgraded May 18'],
       ['Level 4 — Defensive (<40%)','Reduce to 35–45% exposure · T-bills on remainder · Sector caps 35%'],
       ['Level 5 — Crisis (<25%)','Reduce to 30% exposure · T-bills remainder · Hold only top-3 scored positions'],
     ]},
@@ -756,18 +768,18 @@ function buildRebalance(p){
     <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-bottom:1px solid #f0f0f0">
       ${pill('Conditional','pa')}
       <div><div style="font-size:12px;font-weight:500">Expand VRT from 9% to 12% (if breadth ≥50%)</div>
-      <div style="font-size:11px;color:#555;margin-top:2px">VRT score 96 warrants 12% conviction weight. Amber entry cap lifts when breadth crosses 50%. Reassess at Jun 25.</div></div>
+      <div style="font-size:11px;color:#555;margin-top:2px">VRT score 96 warrants 12% conviction weight. Breadth now 53.9% — Neutral regime active. VRT expansion to 12% is AUTHORIZED. Can execute immediately or confirm at Jun 25.</div></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px">
       ${pill('Conditional','pa')}
       <div><div style="font-size:12px;font-weight:500">Trim MU to 10% if Tech still above 44%</div>
-      <div style="font-size:11px;color:#555;margin-top:2px">If breadth stays below 50% and Tech cap cannot expand, trim MU 12→10% to bring Technology to 44%.</div></div>
+      <div style="font-size:11px;color:#555;margin-top:2px">Neutral regime sets sector cap at 45%. Tech at 61% still exceeds 45% cap. Trim MU 12→8% to bring Tech toward 53%. Less urgent than under Amber but still required.</div></div>
     </div>
   </div>
   ${sh('Full universe re-rank trajectory')}
   <table><thead><tr><th>Position</th><th class="r">Current score</th><th class="r">Expected Jun 25</th><th>Trajectory</th><th>Action</th></tr></thead><tbody>
     <tr><td>PLTR</td><td class="r">94</td><td class="r">91–95</td><td>${pill('Stable','pg')}</td><td style="font-size:11px">Hold · FCF waiver review</td></tr>
-    <tr><td>VRT</td><td class="r">96</td><td class="r">93–97</td><td>${pill('Stable-up','pg')}</td><td style="font-size:11px">Hold · expand to 12% if breadth ≥50%</td></tr>
+    <tr><td>VRT</td><td class="r">96</td><td class="r">93–97</td><td>${pill('Stable-up','pg')}</td><td style="font-size:11px">Hold · expand to 12% AUTHORIZED — breadth 53.9%</td></tr>
     <tr><td>LRCX</td><td class="r">91</td><td class="r">88–93</td><td>${pill('Stable','pg')}</td><td style="font-size:11px">Hold · WFE cycle intact</td></tr>
     <tr><td>AXON</td><td class="r">87</td><td class="r">80–90</td><td>${pill('Watch','pa')}</td><td style="font-size:11px">Hold if price confirms · trim to 12% if flag persists</td></tr>
     <tr><td>MU</td><td class="r">85</td><td class="r">83–88</td><td>${pill('Stable','pg')}</td><td style="font-size:11px">Hold · HBM cycle intact</td></tr>
@@ -785,7 +797,7 @@ function buildRisk(p){
     {pos:'PLTR',risk:'FCF waiver expires Jun 25',sev:'pa',sevlbl:'Medium',trigger:'Waiver review · exit if yield trajectory stagnant'},
     {pos:'LRCX',risk:'Semi-cap cycle deceleration',sev:'pg',sevlbl:'Low',trigger:'Trigger A: any negative revision fires exit'},
     {pos:'AXON',risk:'Price confirmation borderline · -12% Trigger C watch',sev:'pr',sevlbl:'High',trigger:'Largest single exit risk — 16% weight'},
-    {pos:'MU',risk:'Memory cycle volatility · Tech cap trim candidate',sev:'pa',sevlbl:'Medium',trigger:'Jun 25: trim 12→8% to reduce Tech concentration'},
+    {pos:'MU',risk:'Memory cycle volatility · Tech cap trim candidate',sev:'pa',sevlbl:'Medium',trigger:'Jun 25: trim 12→8% · Tech 61% still above 45% Neutral cap'},
     {pos:'GEV',risk:'Power infra execution / tariff risk',sev:'pg',sevlbl:'Low',trigger:'Score monitor · no current trigger proximity'},
     {pos:'NVDA',risk:'May 20 earnings — first live score test · FCF waiver active',sev:'pa',sevlbl:'Medium',trigger:'Trigger A if any negative revision May 20 · Waiver review Jun 25'},
     {pos:'SPOT',risk:'May 21 analyst day miss',sev:'pa',sevlbl:'Medium',trigger:'Score could drift toward 65 entry floor if guidance weak'},
@@ -793,8 +805,8 @@ function buildRisk(p){
   ];
   let html=`
   <div class="verdict"><div class="vt">Risk committee summary — May 18, 2026</div>
-  <div class="vb">8 positions, fully deployed, breadth 43.9% amber. PWR→NVDA executed — Industrials flag resolved, Technology flag opened at 61%. No sell triggers firing. NVDA Q1 earnings May 20 — first live test of new position. Jun 25 mandatory: trim Tech from 61% toward cap.</div></div>
-  <div class="g4">${mc('Overall risk','Moderate','Industrials resolved · Tech flagged','a')}${mc('Sector flags','1 active','Technology 61% — cap 40%','a')}${mc('Position flags','2 active','AXON price · PLTR FCF','a')}${mc('Breadth watch','43.9%','3.9pts above defensive','b')}</div>
+  <div class="vb">8 positions, fully deployed, breadth 53.9% NEUTRAL (regime upgrade from Amber). PWR→NVDA executed. Sector caps now 45%. VRT expand to 12% now authorized. NVDA Q1 earnings May 20 — first live test of new position.</div></div>
+  <div class="g4">${mc('Overall risk','Moderate','Industrials resolved · Tech flagged','a')}${mc('Sector flags','1 active','Technology 61% — cap 40%','a')}${mc('Position flags','2 active','AXON price · PLTR FCF','a')}${mc('Breadth','53.9%','Neutral · sector caps 45%','g')}</div>
   ${sh('Position risk register')}
   <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
     <div class="risk-row rh"><div>Position</div><div>Primary risk</div><div>Severity</div><div>Trigger watch</div></div>`;
@@ -805,7 +817,7 @@ function buildRisk(p){
   ${sh('Breadth scenario response table')}
   <table><thead><tr><th>Breadth level</th><th>Regime</th><th>Required action</th><th>Key impact</th></tr></thead><tbody>
     <tr><td>&gt;50% (recovery)</td><td>${pill('Improving','pg')}</td><td>Expand VRT to 12% · Sector caps to 45%</td><td>Industrials flag narrows; Tech cap clears</td></tr>
-    <tr><td>40–43.9% (current)</td><td>${pill('Amber','pa')}</td><td>Monitor weekly · new entries ≤10%</td><td>Hold full exposure</td></tr>
+    <tr><td>50–54% (current)</td><td>${pill('Neutral ↑','pg')}</td><td>Sector caps 45% · full conviction entries</td><td>VRT expand authorized · Tech cap eases to 45%</td></tr>
     <tr><td>35–40%</td><td>${pill('Defensive trigger','pr')}</td><td>Reduce to 35–45% exposure</td><td>PWR and SPOT first exits</td></tr>
     <tr><td>&lt;25%</td><td>${pill('Crisis','pr')}</td><td>30% exposure · T-bills remainder</td><td>Hold PLTR, LRCX, VRT only (top scores)</td></tr>
   </tbody></table>
@@ -819,8 +831,134 @@ function buildRisk(p){
   p.innerHTML=html;
 }
 
-/* ─── INIT ─── */
+/* ─── PERF BAR ─── */
+function buildPerfBar(){
+  const spxYtd=7.6, ermpYtd=7.8;
+  const alpha=(ermpYtd-spxYtd).toFixed(1);
+  const items=[
+    {label:'ERMP v3.0 CAGR',   val:'32.0%',  sub:'backtested',         cls:'pb-g'},
+    {label:'Sharpe ratio',      val:'1.59',   sub:'vs 0.91 SPX',        cls:'pb-g'},
+    {label:'$1M terminal',      val:'$16.8M', sub:'9.24yr backtest',    cls:'pb-g'},
+    {label:'2026 YTD — ERMP',   val:'+'+ermpYtd+'%', sub:'est. vs benchmark', cls:'pb-g'},
+    {label:'2026 YTD — SPX',    val:'+'+spxYtd+'%',  sub:'SPX @ 7,408 · May 15',cls:'pb-b'},
+    {label:'2026 alpha',        val:(parseFloat(alpha)>=0?'+':'')+alpha+'%', sub:'ERMP vs SPX YTD', cls:parseFloat(alpha)>=0?'pb-g':'pb-a'},
+    {label:'Avg score',         val:'88.3',   sub:'↑ from 84.6',        cls:'pb-b'},
+    {label:'Positions',         val:'8',      sub:'Breadth 53.9% neutral','cls':''},
+  ];
+  document.getElementById('perf-bar').innerHTML=items.map(it=>
+    `<div class="pb-item"><div class="pb-label">${it.label}</div><div class="pb-val ${it.cls}">${it.val}</div><div class="pb-sub">${it.sub}</div></div>`
+  ).join('');
+}
+
+/* ─── TAB: INSTRUCTIONS ─── */
+function buildInstructions(p){
+  p.innerHTML=`
+  <div style="background:#f5f5f3;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    <div>
+      <div style="font-size:14px;font-weight:500">ERMP v3.0 — Strategy Instructions &amp; Reference</div>
+      <div style="font-size:11px;color:#666;margin-top:2px">Load at the start of every session · Last updated May 18, 2026</div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${pill('32.0% CAGR','pg')}${pill('Sharpe 1.59','pb')}${pill('8/9 yrs beat SPX','pg')}${pill('Neutral regime','pg')}
+    </div>
+  </div>
+
+  ${sh('What this strategy is')}
+  <div class="rg"><div class="rgh"><div class="rgn" style="background:#eaf3de;color:#27500a">→</div><div class="rgt">ERMP v3.0 — Earnings Revision Momentum Portfolio</div></div>
+    <div class="rr"><div class="rrk">Strategy type</div><div class="rrv">Conviction-weighted, concentrated U.S. equity strategy exploiting earnings estimate revision momentum</div></div>
+    <div class="rr"><div class="rrk">Philosophy</div><div class="rrv">Markets underreact to earnings estimate revisions. Stocks with upward revisions, price confirmation, and strong fundamentals outperform persistently.</div></div>
+    <div class="rr"><div class="rrk">Target CAGR</div><div class="rrv">32.0% (backtested Dec 31 2016 – Mar 25 2026) · Sharpe 1.59 · $1M → $16.8M over 9.24 years</div></div>
+    <div class="rr"><div class="rrk">Beat rate</div><div class="rrv">8 of 9 years beat S&amp;P 500 (88.9%) · Only miss: 2022 rate shock · Annual turnover ~125% (cap 130%)</div></div>
+    <div class="rr"><div class="rrk">Current regime</div><div class="rrv">Breadth 53.9% — Neutral (50–65%) · Full exposure · Sector caps 45% · Full conviction entries · Regime upgraded May 18</div></div>
+  </div>
+
+  ${sh('Current portfolio — 8 positions as of May 18, 2026')}
+  <table><thead><tr><th>Rank</th><th>Ticker</th><th>Name</th><th>Sector</th><th class="r">Weight</th><th class="r">Score</th><th>Status</th></tr></thead><tbody>
+    <tr><td>${pill('#1','pg')}</td><td style="font-weight:500">PLTR</td><td style="color:#666;font-size:11px">Palantir Technologies</td><td>${pill('Technology','pb')}</td><td class="r"><strong style="color:#1d9e75">22%</strong></td><td class="r" style="color:#1d9e75;font-weight:500">94</td><td>${pill('FCF waiver active','pa')}</td></tr>
+    <tr><td>${pill('#2','pb')}</td><td style="font-weight:500">LRCX</td><td style="color:#666;font-size:11px">Lam Research</td><td>${pill('Technology','pb')}</td><td class="r"><strong style="color:#378add">18%</strong></td><td class="r" style="color:#378add;font-weight:500">91</td><td>${pill('All clear','pg')}</td></tr>
+    <tr><td>${pill('#3','pb')}</td><td style="font-weight:500">AXON</td><td style="color:#666;font-size:11px">Axon Enterprise</td><td>${pill('Industrials','pp')}</td><td class="r"><strong style="color:#378add">16%</strong></td><td class="r" style="color:#378add;font-weight:500">87</td><td>${pill('Price watch','pa')}</td></tr>
+    <tr><td>${pill('#4','pp')}</td><td style="font-weight:500">MU</td><td style="color:#666;font-size:11px">Micron Technology</td><td>${pill('Technology','pb')}</td><td class="r"><strong style="color:#7f77dd">12%</strong></td><td class="r" style="color:#7f77dd;font-weight:500">85</td><td>${pill('All clear','pg')}</td></tr>
+    <tr><td>${pill('#5','pp')}</td><td style="font-weight:500">GEV</td><td style="color:#666;font-size:11px">GE Vernova</td><td>${pill('Industrials','pp')}</td><td class="r"><strong style="color:#7f77dd">12%</strong></td><td class="r" style="color:#7f77dd;font-weight:500">82</td><td>${pill('All clear','pg')}</td></tr>
+    <tr><td>${pill('#6','')}</td><td style="font-weight:500">NVDA <span class="new-b">NEW</span></td><td style="color:#666;font-size:11px">NVIDIA Corp</td><td>${pill('Technology','pb')}</td><td class="r"><strong style="color:#888780">9%</strong></td><td class="r" style="color:#1d9e75;font-weight:500">95</td><td>${pill('FCF waiver','pa')}</td></tr>
+    <tr><td>${pill('#7','')}</td><td style="font-weight:500">SPOT</td><td style="color:#666;font-size:11px">Spotify</td><td>${pill('Comm. Svcs','pt')}</td><td class="r"><strong style="color:#888780">9%</strong></td><td class="r" style="color:#888780;font-weight:500">76</td><td>${pill('Amber entry','pa')}</td></tr>
+    <tr><td>${pill('#8','')}</td><td style="font-weight:500">VRT</td><td style="color:#666;font-size:11px">Vertiv Holdings</td><td>${pill('Industrials','pp')}</td><td class="r"><strong style="color:#888780">9%</strong></td><td class="r" style="color:#1d9e75;font-weight:500">96</td><td>${pill('Apr 30 entry','pg')}</td></tr>
+  </tbody></table>
+  <div class="warn" style="margin-top:6px">Technology 61% — above 40% amber cap · Industrials 37% ✓ resolved · Avg score 88.3</div>
+
+  ${sh('Active flags &amp; pending actions')}
+  <div class="rg"><div class="rgh"><div class="rgn" style="background:#fcebeb;color:#791f1f">!</div><div class="rgt">Immediate / ongoing</div></div>
+    <div class="rr"><div class="rrk">NVDA May 20</div><div class="rrv">Q1 FY2027 earnings — first live score update for new position. Beat confirms hold. Any negative EPS revision = Trigger A, exit within 1 trading day.</div></div>
+    <div class="rr"><div class="rrk">SPOT May 21</div><div class="rrv">Analyst day — strong showing could push score 76→82. Widens moat against displacement (threshold 96+).</div></div>
+    <div class="rr"><div class="rrk">AXON price watch</div><div class="rrv">Score 87 intact but 20-day RS vs SPX borderline. If price drops 12% while score positive → Trigger C fires (10-day exit). Largest risk at 16% weight.</div></div>
+    <div class="rr"><div class="rrk">Breadth 53.9%</div><div class="rrv">Regime upgraded to Neutral (50–65%). Sector caps expand to 45%. VRT expansion to 12% now authorized. New entries at full conviction weight.</div></div>
+  </div>
+  <div class="rg"><div class="rgh"><div class="rgn" style="background:#faeeda;color:#633806">📅</div><div class="rgt">Jun 25, 2026 — mandatory rebalance</div></div>
+    <div class="rr"><div class="rrk">Tech trim (required)</div><div class="rrv">Technology 61% → trim MU 12→8% (preferred) to bring Tech toward cap. Or trim NVDA 9→6% if May 20 earnings disappoint.</div></div>
+    <div class="rr"><div class="rrk">PLTR FCF waiver</div><div class="rrv">2-quarter waiver expires Jun 25. Extend if 2027 FCF yield trajectory improving toward 3.5%+. Begin exit if stagnant below 2%.</div></div>
+    <div class="rr"><div class="rrk">VRT expand (conditional)</div><div class="rrv">Breadth now 53.9% — VRT expansion to 12% is NOW AUTHORIZED. Execute at next rebalance or immediately if conviction warrants.</div></div>
+    <div class="rr"><div class="rrk">May 28 scan</div><div class="rrv">Bi-weekly scan #3. Threshold: 96+ score (SPOT 76 + 20pt premium). Full universe re-scan.</div></div>
+  </div>
+
+  ${sh('Composite scoring model — 100 points')}
+  <table><thead><tr><th>Component</th><th class="r">Points</th><th>Description</th></tr></thead><tbody>
+    <tr><td style="font-weight:500">EPS revision momentum</td><td class="r" style="color:#1d9e75;font-weight:500">40</td><td>60-day upward revision &gt;7.5% · No negative revisions in 60 days</td></tr>
+    <tr><td style="font-weight:500">Revision breadth</td><td class="r" style="color:#378add;font-weight:500">20</td><td>Proportion of analysts raising estimates</td></tr>
+    <tr><td style="font-weight:500">Earnings surprise magnitude</td><td class="r" style="color:#378add;font-weight:500">20</td><td>Last quarterly beat vs consensus (&gt;10% = full 20pts)</td></tr>
+    <tr><td style="font-weight:500">Short interest amplifier</td><td class="r" style="color:#7f77dd;font-weight:500">10</td><td>SI &gt;8% of float = 10pts (targets forced-cover squeeze)</td></tr>
+    <tr><td style="font-weight:500">Market cap efficiency</td><td class="r" style="color:#888780;font-weight:500">10</td><td>Mid-cap +10pts · Large neutral · Mega-cap −5pts</td></tr>
+  </tbody></table>
+  <div class="note">Entry threshold: 65/100 minimum · Hard filters (ALL required): Price &gt;200-DMA · FY EPS growth ≥10% · FCF yield ≥5% · FCF waiver if score ≥90, documented review</div>
+
+  ${sh('The four sell triggers')}
+  <table><thead><tr><th>Trigger</th><th>Condition</th><th>Action</th></tr></thead><tbody>
+    <tr><td>${pill('A — Immediate','pr')}</td><td>Any negative EPS revision</td><td style="font-weight:500;color:#791f1f">Exit within 1 trading day — no exceptions</td></tr>
+    <tr><td>${pill('B — 5 days','pa')}</td><td>Composite score falls below 40/100</td><td>Exit within 5 trading days</td></tr>
+    <tr><td>${pill('C — 10 days','pa')}</td><td>Price −12% while score still positive</td><td>Exit within 10 days (revision lag defense)</td></tr>
+    <tr><td>${pill('D — Appreciation','pb')}</td><td>Position exceeds 25% weight</td><td>Trim to 20% within 5 trading days</td></tr>
+  </tbody></table>
+
+  ${sh('Breadth regime overlay')}
+  <table><thead><tr><th>Breadth</th><th>Regime</th><th class="r">Exposure</th><th class="r">Sector cap</th><th>New entry cap</th></tr></thead><tbody>
+    <tr><td>&gt;65%</td><td>${pill('Bull','pg')}</td><td class="r">100%</td><td class="r">50%</td><td>Full conviction</td></tr>
+    <tr style="background:#eaf3de"><td>50–65%</td><td>${pill('Neutral ← current','pg')}</td><td class="r">100%</td><td class="r">45%</td><td><strong>Full conviction</strong></td></tr>
+    <tr><td>40–50%</td><td>${pill('Amber','pa')}</td><td class="r">100%</td><td class="r">40%</td><td>10% max</td></tr>
+    <tr><td>&lt;40%</td><td>${pill('Defensive','pr')}</td><td class="r">35–45%</td><td class="r">35%</td><td>No new entries</td></tr>
+    <tr><td>&lt;25%</td><td>${pill('Crisis','pr')}</td><td class="r">30%</td><td class="r">—</td><td>Hold top-3 only</td></tr>
+  </tbody></table>
+
+  ${sh('Scan &amp; rebalance calendar')}
+  <table><thead><tr><th>Date</th><th>Event</th><th>Action</th></tr></thead><tbody>
+    <tr style="background:#fdf8f0"><td style="font-weight:500">May 20</td><td>NVIDIA Q1 FY2027 earnings</td><td>Confirm NVDA score · Trigger A if negative revision</td></tr>
+    <tr style="background:#fdf8f0"><td style="font-weight:500">May 21</td><td>Spotify analyst day</td><td>Score update trigger for SPOT</td></tr>
+    <tr><td style="font-weight:500">May 28</td><td>Bi-weekly scan #3</td><td>Re-scan universe · threshold 96+ to displace SPOT</td></tr>
+    <tr><td style="font-weight:500">Jun 25</td><td>Q2 primary rebalance</td><td>Tech trim mandatory · PLTR waiver review · full re-rank</td></tr>
+  </tbody></table>
+
+  ${sh('Conviction weight rules')}
+  <div class="rg">
+    <div class="rr"><div class="rrk">#1 position</div><div class="rrv">20–22% weight</div></div>
+    <div class="rr"><div class="rrk">#2–3 positions</div><div class="rrv">14–18% weight</div></div>
+    <div class="rr"><div class="rrk">#4–5 positions</div><div class="rrv">10–13% weight</div></div>
+    <div class="rr"><div class="rrk">#6–8 positions</div><div class="rrv">8–11% weight</div></div>
+    <div class="rr"><div class="rrk">Scan replacement trigger</div><div class="rrv">Candidate must score ≥90th percentile AND ≥20pts above weakest holding · Currently: 96+ to displace SPOT (76)</div></div>
+    <div class="rr"><div class="rrk">No averaging down</div><div class="rrv">Never add to a declining position · Hold or exit only</div></div>
+    <div class="rr"><div class="rrk">Flex position count</div><div class="rrv">6–10 positions · No forced dilution into marginal ideas · T-bills on remainder if &lt;6 qualify</div></div>
+  </div>
+
+  ${sh('How to use this dashboard with Claude')}
+  <div class="rg">
+    <div class="rr"><div class="rrk">Run a scan</div><div class="rrv">"Run the May 28 bi-weekly scan"</div></div>
+    <div class="rr"><div class="rrk">Execute a trade</div><div class="rrv">"NVDA beat — confirm hold" · "AXON triggered Trigger C today"</div></div>
+    <div class="rr"><div class="rrk">Update portfolio</div><div class="rrv">"Add [ticker] — just had a massive earnings beat"</div></div>
+    <div class="rr"><div class="rrk">Rebalance</div><div class="rrv">"Prepare the Jun 25 rebalance execution plan"</div></div>
+    <div class="rr"><div class="rrk">Stress test</div><div class="rrv">"Stress test against a rate shock scenario"</div></div>
+    <div class="rr"><div class="rrk">Open dashboard</div><div class="rrv">"Open dashboard" → Claude reminds you to open bookmarked index.html</div></div>
+  </div>`;
+}
+
+
 buildNav();
+buildPerfBar();
 renderTab('portfolio');
 </script>
 </body>
